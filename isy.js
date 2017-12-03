@@ -671,8 +671,11 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                     // [     ZW029_1]       ST   0 (uom=11 prec=0)
                     // [     ZW029_1]       ST   0 (uom=11 prec=0)
                     // [     ZW029_1]    ALARM  24 (uom=15 prec=0)
-                const nodeName = value.split(']')[0].split('[')[1].trim()
-                const nodeValueString = value.split(']')[1].split('(')[0].trim()
+                    // var inputString = "[     ZW029_1]   USRNUM   1 (uom=70 prec=0)"
+                var inputString = value
+                inputString = inputString.replace(/\s\s+/g, ' ');
+                const nodeName = inputString.split(']')[0].split('[')[1].trim()
+                const nodeValueString = inputString.split(']')[1].split('(')[0].trim()
                 const nodeEvent = nodeValueString.split(' ')[0]
                 const eventValue = nodeValueString.split(' ')[1]
                     // console.log('nodeName: ' + nodeName + '   event: ' + nodeEvent + '  value:' + eventValue)
