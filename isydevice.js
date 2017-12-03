@@ -17,6 +17,8 @@ function ISYBaseDevice(isy, name, address, isyType, deviceType, deviceFamily) {
     this.deviceFriendlyName = 'Generic Device'
     this.currentState = 0
     this.lastChanged = new Date()
+    this.updateType = DEVICE_UPDATE_TYPE_GENERIC
+    this.updatedProperty = null
 }
 
 ISYBaseDevice.prototype.DIM_LEVEL_MINIMUM = 0
@@ -45,6 +47,23 @@ ISYBaseDevice.prototype.ISY_COMMAND_FAN_PARAMETER_LOW = 63
 ISYBaseDevice.prototype.ISY_COMMAND_FAN_PARAMETER_MEDIUM = 191
 ISYBaseDevice.prototype.ISY_COMMAND_FAN_PARAMETER_HIGH = 255
 
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_LOCK_ALARM = 'ALARM'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_LOCK_ACCESS = 'USRNUM'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_LOCK_STATUS = 'ST'
+
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_ENERGY_POWER_FACTOR = 'PF'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_ENERGY_POWER_POLARIZED_POWER = 'PPW'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_ENERGY_POWER_CURRENT = 'CC'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_ENERGY_POWER_TOTAL_POWER = 'TPW'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_ENERGY_POWER_VOLTAGE = 'CV'
+
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_HUMIDITY = 'CLIHUM'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_OPERATING_MODE = 'CLIHCS'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_MODE = 'CLIMD'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_FAN = 'CLIFS'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_COOL_SET_POINT = 'CLISPH'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_HEAT_SET_POINT = 'CLISPH'
+
 ISYBaseDevice.prototype.handleIsyUpdate = function(actionValue) {
     if (actionValue != this.currentState) {
         this.currentState = Number(actionValue)
@@ -59,6 +78,7 @@ ISYBaseDevice.prototype.handleIsyGenericPropertyUpdate = function(actionValue, p
     if (actionValue !== this[prop]) {
         this[prop] = Number(actionValue)
         this.lastChanged = new Date()
+        this.updatedProperty = prop
         return true
     } else {
         return false
