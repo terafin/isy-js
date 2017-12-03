@@ -75,7 +75,7 @@ ISYBaseDevice.prototype.handleIsyUpdate = function(actionValue) {
 }
 
 ISYBaseDevice.prototype.handleIsyGenericPropertyUpdate = function(actionValue, prop) {
-    if (Number(actionValue) !== this[prop]) {
+    if (Number(actionValue) != this[prop]) {
         this[prop] = Number(actionValue)
         this.lastChanged = new Date()
         this.updatedProperty = prop
@@ -292,7 +292,7 @@ function ISYThermostatDevice(isy, name, address, deviceTypeInfo, status) {
 util.inherits(ISYThermostatDevice, ISYBaseDevice)
 
 ISYThermostatDevice.prototype.handleIsyTstatUpdate = function(actionValue, prop) {
-    if (actionValue !== this[prop]) {
+    if (actionValue != this[prop]) {
         this[prop] = Number(actionValue)
         this.lastChanged = new Date()
         return true
