@@ -609,7 +609,7 @@ ISY.prototype.initialize = function(initializeCompleted) {
 }
 
 ISY.prototype.handleWebSocketMessage = function(event) {
-    console.log('WEBSOCKET: ' + event.data)
+    //console.log('WEBSOCKET: ' + event.data)
     this.lastActivity = new Date()
     var document = new xmldoc.XmlDocument(event.data)
     if (typeof document.childNamed('control') !== 'undefined') {
@@ -664,6 +664,19 @@ ISY.prototype.handleWebSocketMessage = function(event) {
 
                     this.handleISYVariableUpdate(id, type, val, timeStamp)
                 }
+            } else if (actionValue === 3 || actionValue === '3') {
+                const eventInfo = document.childNamed('eventInfo')
+                const value = eventInfo.val
+                    // [     ZW029_1]   USRNUM   1 (uom=70 prec=0)
+                    // [     ZW029_1]       ST   0 (uom=11 prec=0)
+                    // [     ZW029_1]       ST   0 (uom=11 prec=0)
+                    // [     ZW029_1]    ALARM  24 (uom=15 prec=0)
+                const nodeName = value.split(']')[0].split('[')[1].trim()
+                const nodeValueString = value.split(']')[1].split('(')[0].trim()
+                const nodeEvent = nodeValueString.split(' ')[0]
+                const eventValue = nodeValueString.split(' ')[1]
+                    // console.log('nodeName: ' + nodeName + '   event: ' + nodeEvent + '  value:' + eventValue)
+                this.handleISYGenericPropertyUpdate(nodeName, eventValue, nodeEvent)
             }
         }
     }
