@@ -55,11 +55,10 @@ var ISY = function(address, username, password, elkEnabled, changeCallback, useH
     this.changeCallback = changeCallback
 }
 
-ISY.prototype.DEVICE_UPDATE_TYPE_ELK = 'ELK_UPDATE'
-ISY.prototype.DEVICE_UPDATE_TYPE_ZONE = 'ZONE_UPDATE'
-ISY.prototype.DEVICE_UPDATE_TYPE_PROPERTY = 'PROPERTY_UPDATE'
-ISY.prototype.DEVICE_UPDATE_TYPE_GENERIC = 'GENERIC_UPDATE'
-
+exports.DEVICE_UPDATE_TYPE_ELK = 'ELK_UPDATE'
+exports.DEVICE_UPDATE_TYPE_ZONE = 'ZONE_UPDATE'
+exports.DEVICE_UPDATE_TYPE_PROPERTY = 'PROPERTY_UPDATE'
+exports.DEVICE_UPDATE_TYPE_GENERIC = 'GENERIC_UPDATE'
 
 ISY.prototype.DEVICE_TYPE_LOCK = 'DoorLock'
 ISY.prototype.DEVICE_TYPE_SECURE_LOCK = 'SecureLock'
