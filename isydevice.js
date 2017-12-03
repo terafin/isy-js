@@ -65,7 +65,7 @@ ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_COOL_SET_POINT = 'CLISPH'
 ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_HEAT_SET_POINT = 'CLISPH'
 
 ISYBaseDevice.prototype.handleIsyUpdate = function(actionValue) {
-    if (actionValue != this.currentState) {
+    if (Number(actionValue) != this.currentState) {
         this.currentState = Number(actionValue)
         this.lastChanged = new Date()
         return true
@@ -75,7 +75,7 @@ ISYBaseDevice.prototype.handleIsyUpdate = function(actionValue) {
 }
 
 ISYBaseDevice.prototype.handleIsyGenericPropertyUpdate = function(actionValue, prop) {
-    if (actionValue !== this[prop]) {
+    if (Number(actionValue) !== this[prop]) {
         this[prop] = Number(actionValue)
         this.lastChanged = new Date()
         this.updatedProperty = prop
