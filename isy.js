@@ -650,7 +650,7 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                     var aeElement = document.childNamed('eventInfo').childNamed('ae')
                     if (aeElement !== null) {
                         if (this.elkAlarmPanel.setFromAreaUpdate(aeElement)) {
-                            this.elkAlarmPanel.updateType = ISY..DEVICE_UPDATE_TYPE_ELK
+                            this.elkAlarmPanel.updateType = ISY.DEVICE_UPDATE_TYPE_ELK
                             this.nodeChangedHandler(this.elkAlarmPanel)
                         }
                     }
