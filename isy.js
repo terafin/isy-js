@@ -636,6 +636,7 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                 this.handleISYTstatUpdate(address, actionValue, controlElement)
                 break;
 
+            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_BATTERY_LEVEL:
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_FACTOR:
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_POLARIZED_POWER:
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_CURRENT:

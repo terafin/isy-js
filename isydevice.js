@@ -63,6 +63,7 @@ ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_MODE = 'CLIMD'
 ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_FAN = 'CLIFS'
 ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_COOL_SET_POINT = 'CLISPH'
 ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_CLIMATE_HEAT_SET_POINT = 'CLISPH'
+ISYBaseDevice.prototype.ISY_PROPERTY_ZWAVE_BATTERY_LEVEL = 'BATLVL'
 
 ISYBaseDevice.prototype.handleIsyUpdate = function(actionValue) {
     if (Number(actionValue) != this.currentState) {
