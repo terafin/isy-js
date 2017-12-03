@@ -17,7 +17,7 @@ function ISYBaseDevice(isy, name, address, isyType, deviceType, deviceFamily) {
     this.deviceFriendlyName = 'Generic Device'
     this.currentState = 0
     this.lastChanged = new Date()
-    this.updateType = DEVICE_UPDATE_TYPE_GENERIC
+    this.updateType = null
     this.updatedProperty = null
 }
 
