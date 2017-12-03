@@ -649,7 +649,7 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                     var aeElement = document.childNamed('eventInfo').childNamed('ae')
                     if (aeElement !== null) {
                         if (this.elkAlarmPanel.setFromAreaUpdate(aeElement)) {
-                            this.elkAlarmPanel.updateType = this.DEVICE_UPDATE_TYPE_ELK
+                            this.elkAlarmPanel.updateType = exports.DEVICE_UPDATE_TYPE_ELK
                             this.nodeChangedHandler(this.elkAlarmPanel)
                         }
                     }
@@ -659,7 +659,7 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                     var zoneDevice = this.zoneMap[zoneId]
                     if (zoneDevice !== null) {
                         if (zoneDevice.setFromZoneUpdate(zeElement)) {
-                            this.elkAlarmPanel.updateType = this.DEVICE_UPDATE_TYPE_ZONE
+                            this.elkAlarmPanel.updateType = exports.DEVICE_UPDATE_TYPE_ZONE
                             this.nodeChangedHandler(zoneDevice)
                         }
                     }
@@ -759,7 +759,7 @@ ISY.prototype.handleISYStateUpdate = function(address, state) {
     var deviceToUpdate = this.deviceIndex[address]
     if (deviceToUpdate !== undefined && deviceToUpdate !== null) {
         if (deviceToUpdate.handleIsyUpdate(state)) {
-            deviceToUpdate.updateType = this.DEVICE_UPDATE_TYPE_GENERIC
+            deviceToUpdate.updateType = exports.DEVICE_UPDATE_TYPE_GENERIC
             this.nodeChangedHandler(deviceToUpdate)
             if (this.scenesInDeviceList) {
                 // Inefficient, we could build a reverse index (device->scene list)
@@ -767,7 +767,7 @@ ISY.prototype.handleISYStateUpdate = function(address, state) {
                 for (var index = 0; index < this.sceneList.length; index++) {
                     if (this.sceneList[index].isDeviceIncluded(deviceToUpdate)) {
                         if (this.sceneList[index].reclalculateState()) {
-                            deviceToUpdate.updateType = this.DEVICE_UPDATE_TYPE_GENERIC
+                            deviceToUpdate.updateType = exports.DEVICE_UPDATE_TYPE_GENERIC
                             this.nodeChangedHandler(this.sceneList[index])
                         }
                     }
@@ -781,7 +781,7 @@ ISY.prototype.handleISYTstatUpdate = function(address, state, prop) {
     var deviceToUpdate = this.deviceIndex[address]
     if (deviceToUpdate !== undefined && deviceToUpdate !== null) {
         if (deviceToUpdate.handleIsyTstatUpdate(state, prop)) {
-            deviceToUpdate.updateType = this.DEVICE_UPDATE_TYPE_PROPERTY
+            deviceToUpdate.updateType = exports.DEVICE_UPDATE_TYPE_PROPERTY
             this.nodeChangedHandler(deviceToUpdate)
         }
     }
@@ -791,7 +791,7 @@ ISY.prototype.handleISYGenericPropertyUpdate = function(address, state, prop) {
     var deviceToUpdate = this.deviceIndex[address]
     if (deviceToUpdate !== undefined && deviceToUpdate !== null) {
         if (deviceToUpdate.handleIsyGenericPropertyUpdate(state, prop)) {
-            deviceToUpdate.updateType = this.DEVICE_UPDATE_TYPE_PROPERTY
+            deviceToUpdate.updateType = exports.DEVICE_UPDATE_TYPE_PROPERTY
             this.nodeChangedHandler(deviceToUpdate)
         }
     }
