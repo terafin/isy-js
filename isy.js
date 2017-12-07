@@ -14,7 +14,6 @@ var ISYScene = require('./isyscene').ISYScene
 var ISYThermostatDevice = isydevice.ISYThermostatDevice
 var ISYBaseDevice = isydevice.ISYBaseDevice
 var ISYVariable = require('./isyvariable').ISYVariable
-const f2c = require('fahrenheit-to-celsius')
 
 function convertToCelsius(value) {
     const celsius = (5 / 9 * (value - 32)).toFixed(1)
