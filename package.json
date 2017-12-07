@@ -1,25 +1,25 @@
 {
     "name": "isy-js",
     "description": "Javascript wrapper for ISY interface including websockets for change notifications. Designed to be used in a node.js application. No longer under active development by original author. Limited development by contributors: shbatm",
-    "license" : "MIT",
-    "version" : "0.5.0",
-    "author" : {
+    "license": "MIT",
+    "version": "0.5.0",
+    "author": {
         "name": "Rod Toll",
         "email": "rod_toll@hotmail.com"
     },
-    "contributors" : [
+    "contributors": [
         {
-            "name" : "shbatm",
-            "email" : "18057952+shbatm@users.noreply.github.com"
+            "name": "shbatm",
+            "email": "18057952+shbatm@users.noreply.github.com"
         },
         {
-            "name" : "TenStartups"
+            "name": "TenStartups"
         }
     ],
-    "scripts" : {
-        "test": "mocha"    
+    "scripts": {
+        "test": "mocha"
     },
-    "keywords" : [
+    "keywords": [
         "isy",
         "universal devices",
         "insteon"
@@ -30,15 +30,16 @@
         "fake-isy-994i": ""
     },
     "dependencies": {
-        "restler": "",
+        "fahrenheit-to-celsius": "^1.0.0",
         "faye-websocket": "",
+        "restler": "",
         "xmldoc": ""
     },
     "bugs": {
         "url": "https://github.com/shbatm/isy-js/issues"
     },
-    "repository" : {
-         "type" : "git", 
-         "url" : "https://github.com/shbatm/isy-js.git"
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/shbatm/isy-js.git"
     }
 }

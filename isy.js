@@ -13,6 +13,13 @@ var ISYScene = require('./isyscene').ISYScene
 var ISYThermostatDevice = require('./isydevice').ISYThermostatDevice
 var ISYBaseDevice = require('./isydevice').ISYBaseDevice
 var ISYVariable = require('./isyvariable').ISYVariable
+const f2c = require('fahrenheit-to-celsius')
+
+function convertToCelsius(value) {
+    value = (Number(value) / 10)
+    value = f2c(value).toFixed(1)
+    return value
+}
 
 function isyTypeToTypeName(isyType, address) {
     for (var index = 0; index < isyDeviceTypeList.length; index++) {
@@ -614,7 +621,7 @@ ISY.prototype.initialize = function(initializeCompleted) {
 }
 
 ISY.prototype.handleWebSocketMessage = function(event) {
-    //console.log('WEBSOCKET: ' + event.data)
+    console.log('WEBSOCKET: ' + event.data)
     this.lastActivity = new Date()
     var document = new xmldoc.XmlDocument(event.data)
     if (typeof document.childNamed('control') !== 'undefined') {
@@ -628,10 +635,19 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                 break
 
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_TEMPERATURE:
-                actionValue = Number(actionValue) / 100
-                this.handleISYGenericPropertyUpdate(address, actionValue, controlElement)
-                    // intentional fall through
+                var uom = document.childNamed('action').attr.uom
+                var precision = document.childNamed('action').attr.precision
+                actionValue = Number(actionValue)
+                for (var i = 0; i++; i < precision) {
+                    actionValue /= 10.0
+                }
 
+                if (uom == 4) {
+                    // we are good, it is celsius
+                } else if (uom == 17) {
+                    // farenheit
+                    actionValue = convertToCelsius(actionValue)
+                }
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_HUMIDITY:
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_OPERATING_MODE:
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_MODE:
