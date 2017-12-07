@@ -627,6 +627,7 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                 this.handleISYStateUpdate(address, actionValue)
                 break
 
+            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_TEMPERATURE:
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_HUMIDITY:
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_OPERATING_MODE:
             case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_MODE:
