@@ -3,21 +3,22 @@ var xmldoc = require('xmldoc')
 var WebSocket = require('faye-websocket')
 var elkDevice = require('./elkdevice.js')
 var isyDeviceTypeList = require('./isydevicetypes.json')
-var ISYOutletDevice = require('./isydevice').ISYOutletDevice
-var ISYLightDevice = require('./isydevice').ISYLightDevice
-var ISYLockDevice = require('./isydevice').ISYLockDevice
-var ISYDoorWindowDevice = require('./isydevice').ISYDoorWindowDevice
-var ISYFanDevice = require('./isydevice').ISYFanDevice
-var ISYMotionSensorDevice = require('./isydevice').ISYMotionSensorDevice
+const isydevice = require('./isydevice')
+var ISYOutletDevice = isydevice.ISYOutletDevice
+var ISYLightDevice = isydevice.ISYLightDevice
+var ISYLockDevice = isydevice.ISYLockDevice
+var ISYDoorWindowDevice = isydevice.ISYDoorWindowDevice
+var ISYFanDevice = isydevice.ISYFanDevice
+var ISYMotionSensorDevice = isydevice.ISYMotionSensorDevice
 var ISYScene = require('./isyscene').ISYScene
-var ISYThermostatDevice = require('./isydevice').ISYThermostatDevice
-var ISYBaseDevice = require('./isydevice').ISYBaseDevice
+var ISYThermostatDevice = isydevice.ISYThermostatDevice
+var ISYBaseDevice = isydevice.ISYBaseDevice
 var ISYVariable = require('./isyvariable').ISYVariable
 const f2c = require('fahrenheit-to-celsius')
 
 function convertToCelsius(value) {
-    value = f2c(value).toFixed(1)
-    return value
+    const celsius = (5 / 9 * (value - 32)).toFixed(1)
+    return celsius
 }
 
 function isyTypeToTypeName(isyType, address) {
@@ -620,7 +621,7 @@ ISY.prototype.initialize = function(initializeCompleted) {
 }
 
 ISY.prototype.handleWebSocketMessage = function(event) {
-    console.log('WEBSOCKET: ' + event.data)
+    //console.log('WEBSOCKET: ' + event.data)
     this.lastActivity = new Date()
     var document = new xmldoc.XmlDocument(event.data)
     if (typeof document.childNamed('control') !== 'undefined') {
@@ -633,13 +634,17 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                 this.handleISYStateUpdate(address, actionValue)
                 break
 
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_TEMPERATURE:
+            case isydevice.ISY_PROPERTY_ZWAVE_CLIMATE_TEMPERATURE:
                 var uom = document.childNamed('action').attr.uom
-                var precision = document.childNamed('action').attr.precision
+                var precision = document.childNamed('action').attr.prec
                 actionValue = Number(actionValue)
-                for (var i = 0; i++; i < precision) {
-                    actionValue /= 10.0
-                }
+
+                var i = 0
+
+                if (precision == 1)
+                    actionValue = actionValue / 10.0
+                else if (precision == 2)
+                    actionValue = actionValue / 100.0
 
                 if (uom == 4) {
                     // we are good, it is celsius
@@ -647,21 +652,22 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                     // farenheit
                     actionValue = convertToCelsius(actionValue)
                 }
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_HUMIDITY:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_OPERATING_MODE:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_MODE:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_FAN:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_COOL_SET_POINT:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_CLIMATE_HEAT_SET_POINT:
-                this.handleISYTstatUpdate(address, actionValue, controlElement)
+
+            case isydevice.ISY_PROPERTY_ZWAVE_CLIMATE_HUMIDITY:
+            case isydevice.ISY_PROPERTY_ZWAVE_CLIMATE_OPERATING_MODE:
+            case isydevice.ISY_PROPERTY_ZWAVE_CLIMATE_MODE:
+            case isydevice.ISY_PROPERTY_ZWAVE_CLIMATE_FAN:
+            case isydevice.ISY_PROPERTY_ZWAVE_CLIMATE_COOL_SET_POINT:
+            case isydevice.ISY_PROPERTY_ZWAVE_CLIMATE_HEAT_SET_POINT:
+                this.handleISYGenericPropertyUpdate(address, actionValue, controlElement)
                 break;
 
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_BATTERY_LEVEL:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_FACTOR:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_POLARIZED_POWER:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_CURRENT:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_TOTAL_POWER:
-            case ISYBaseDevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_VOLTAGE:
+            case isydevice.ISY_PROPERTY_ZWAVE_BATTERY_LEVEL:
+            case isydevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_FACTOR:
+            case isydevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_POLARIZED_POWER:
+            case isydevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_CURRENT:
+            case isydevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_TOTAL_POWER:
+            case isydevice.ISY_PROPERTY_ZWAVE_ENERGY_POWER_VOLTAGE:
                 this.handleISYGenericPropertyUpdate(address, actionValue, controlElement)
                 break;
 
