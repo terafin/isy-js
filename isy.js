@@ -16,7 +16,6 @@ var ISYVariable = require('./isyvariable').ISYVariable
 const f2c = require('fahrenheit-to-celsius')
 
 function convertToCelsius(value) {
-    value = (Number(value) / 10)
     value = f2c(value).toFixed(1)
     return value
 }
