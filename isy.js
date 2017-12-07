@@ -727,6 +727,7 @@ ISY.prototype.handleWebSocketMessage = function(event) {
                         // console.log('nodeName: ' + nodeName + '   event: ' + nodeEvent + '  value:' + eventValue)
                     this.handleISYGenericPropertyUpdate(nodeName, eventValue, nodeEvent)
                 }
+                break;
             default:
                 break
         }
