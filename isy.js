@@ -752,7 +752,7 @@ ISY.prototype.initializeWebSocket = function() {
     this.webSocket.on('message', function(event) {
         that.handleWebSocketMessage(event)
     }).on('error', function(err, response) {
-        that.logger('ISY-JS: Error while contacting ISY' + err)
+        that.logger('ISY-JS: Error while contacting ISY: ' + JSON.stringify(err))
         throw new Error('Error calling ISY' + err)
     }).on('fail', function(data, response) {
         that.logger('ISY-JS: Error while contacting ISY -- failure')
