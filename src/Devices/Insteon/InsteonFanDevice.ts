@@ -42,7 +42,7 @@ export class InsteonFanDevice extends InsteonBaseDevice {
 		super(isy, deviceNode);
 		this.light = new InsteonDimmableDevice(isy, deviceNode);
 		this.light.on('PropertyChanged', ((a, b, c, d) => { this.emit('PropertyChanged', `light.${a}`, b, c, d); }).bind(this));
-		this.addChild(this.Light);
+		this.addChild(this.light);
 
 	}
 
