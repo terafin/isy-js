@@ -34,6 +34,8 @@ export class InsteonFanMotorDevice extends ISYLevelDevice(ISYBinaryStateDevice(I
 }
 
 export class InsteonFanDevice extends InsteonBaseDevice {
+	public light: InsteonDimmableDevice;
+	public motor: InsteonFanMotorDevice;
 	constructor (isy: ISY, deviceNode: {
 		type: string;
 	}) {
@@ -43,8 +45,7 @@ export class InsteonFanDevice extends InsteonBaseDevice {
 		this.addChild(this.Light);
 
 	}
-	public light: InsteonDimmableDevice;
-	public motor: InsteonFanMotorDevice;
+
 
 	public handleEvent(event): boolean {
 		const child = this.children.find((p) => p.address === event.node);

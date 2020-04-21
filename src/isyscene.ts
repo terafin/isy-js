@@ -88,11 +88,11 @@ export class ISYScene extends ISYNode {
 	}
 	public markAsChanged() {
 		this.lastChanged = new Date();
-		this.propertyChanged.emit('isOn', 'isOn', this.isOn, this.isOn ? 'on' : 'off');
-		this.propertyChanged.emit('', 'isOn', this.isOn, this.isOn ? 'on' : 'off');
+		this.emit('PropertyChanged', 'isOn', this.isOn, this.isOn, this.isOn ? 'on' : 'off');
+
 		if (this.isDimmable) {
-			this.propertyChanged.emit('brightnessLevel', 'brightnesslevel', this.brightnessLevel, this.brightnessLevel);
-			this.propertyChanged.emit('', 'brightnessLevel', this.brightnessLevel, this.brightnessLevel);
+			this.emit('PropertyChanged', 'brightnesslevel', this.brightnessLevel, this.brightnessLevel, this.brightnessLevel + '%');
+
 		}
 	}
 	public updateIsOn(lightState) {
