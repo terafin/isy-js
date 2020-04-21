@@ -1,13 +1,19 @@
 import { Family } from '../../Families';
-import { ISYDevice } from '../ISYDevice';
 import { ISY } from '../../ISY';
+import { ISYDevice } from '../ISYDevice';
 export declare class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
     alarmTripState: AlarmTripState;
     alarmState: AlarmState;
     alarmMode: AlarmMode;
+    area: any;
+    deviceFriendlyName: string;
+    deviceType: any;
+    connectionType: string;
+    batteryOperated: boolean;
+    voltage: number;
     constructor(isy: ISY, area: number);
-    sendCommand(command: any): Promise<any>;
-    sendSetAlarmModeCommand(alarmState: any): Promise<any>;
+    sendCommand(command: string): Promise<any>;
+    sendSetAlarmModeCommand(alarmState: string): Promise<any>;
     clearAllBypasses(): Promise<any>;
     getAlarmStatusAsText(): string;
     getAlarmTripState(): AlarmTripState;
@@ -44,11 +50,20 @@ export declare enum AlarmState {
     ARMED_WITH_BYPASS = 6
 }
 export declare class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
+    area: any;
+    zone: any;
+    deviceFriendlyName: string;
+    deviceType: any;
+    connectionType: string;
+    batteryOperated: boolean;
+    physicalState: number;
+    logicalState: number;
+    voltage: number;
     constructor(isy: any, name: any, area: any, zone: any);
     sendBypassToggleCommand(): Promise<any>;
-    getPhysicalState(): any;
+    getPhysicalState(): number;
     isBypassed(): boolean;
-    getLogicalState(): any;
+    getLogicalState(): number;
     getCurrentDoorWindowState(): boolean;
     getSensorStatus(): string;
     isPresent(): boolean;

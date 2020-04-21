@@ -1,6 +1,6 @@
 import { Family } from '../../Families';
-import { ISYDevice } from '../ISYDevice';
 import { ISY } from '../../ISY';
+import { ISYDevice } from '../ISYDevice';
 
 /////////////////////////////
 // ELKAlarmPanelDevice
@@ -11,6 +11,13 @@ export class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
 	 public alarmTripState: AlarmTripState;
 	 public alarmState: AlarmState;
 	 public alarmMode: AlarmMode;
+	public area: any;
+
+	public deviceFriendlyName: string;
+	public deviceType: any;
+	public connectionType: string;
+	public batteryOperated: boolean;
+	public voltage: number;
 
 	constructor(isy: ISY, area: number) {
 
@@ -21,7 +28,6 @@ export class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
 		this.alarmState = AlarmState.NOT_READY_TO_ARM;
 		this.alarmMode = AlarmMode.DISARMED;
 
-
 		this.deviceFriendlyName = 'Elk Alarm Panel ' + area;
 
 		this.connectionType = 'Elk Network Module';
@@ -31,13 +37,13 @@ export class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
 			.lastChanged = new Date();
 	}
 
-	public async sendCommand(command): Promise<any> {
+	public async sendCommand(command: string): Promise<any> {
 
 		return this.isy.sendISYCommand(`elk/area/${this.area}/cmd/${command}`);
 
 	}
 
-	public async sendSetAlarmModeCommand(alarmState) {
+	public async sendSetAlarmModeCommand(alarmState: string) {
 		if (alarmState === 'disarm') {
 			return this.sendCommand('disarm');
 		} else {
@@ -156,6 +162,15 @@ ELKAlarmPanelDevice.prototype.ALARM_STATE_ARMED_WITH_BYPASS = 6;
 // ELKAlarmSensor
 //
 export class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
+	public area: any;
+	public zone: any;
+	public deviceFriendlyName: string;
+	public deviceType: any;
+	public connectionType: string;
+	public batteryOperated: boolean;
+	public physicalState: number;
+	public logicalState: number;
+	public voltage: number;
 	constructor(isy, name, area, zone) {
 		super(isy, {family: Family.Elk, name, address: `ElkZone${zone}`, enabled: true});
 
