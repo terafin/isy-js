@@ -1,0 +1,28 @@
+{
+    "defaultSeverity": "warning",
+    "extends": [
+        "tslint:recommended"
+        
+    ],
+    "jsRules": {},
+    "rules": {"no-return-await":true,
+        "member-ordering":true,
+        "variable-name":true,
+        "triple-equals":true,
+        "indent":[true,"tabs",2],
+        "max-classes-per-file":false,
+        "max-line-length":false,
+        "quotemark":[true,"single"],
+        "prefer-template": true,
+        "interface-name": false,
+        "trailing-comma": false,
+        "semicolon":true,
+        "align":true,
+        "await-promise":true,
+        "class-name": true,
+        "prefer-function-over-method": true,
+        "promise-function-async": true
+    },
+    
+    "rulesDirectory": []
+}
