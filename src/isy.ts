@@ -468,7 +468,7 @@ export class ISY extends EventEmitter {
 							} (${device.formatted[prop.id]})`
 						);
 					}
-				} else {
+				} else if(node.property){
 					device[node.property.id] = device.convertFrom(
 						Number(node.property.value),
 						Number(node.property.uom)
