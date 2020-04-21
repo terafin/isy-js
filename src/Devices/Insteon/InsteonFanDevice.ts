@@ -65,11 +65,11 @@ export class InsteonFanDevice extends InsteonBaseDevice {
 	}
 
 	public async updateFanSpeed(level: number) {
-		return this.Motor.updateLevel(level);
+		return this.motor.updateLevel(level);
 	}
 	public async updateIsOn(isOn: boolean) {
 		if (!isOn) {
-			this.Motor.updateLevel(States.Level.Min);
+			this.motor.updateLevel(States.Level.Min);
 		} else {
 			this.updateLevel(States.Fan.High);
 		}
