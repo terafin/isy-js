@@ -1,6 +1,7 @@
 import { Family } from '../../Families';
 import { ISY } from '../../ISY';
 import { ISYDevice } from '../ISYDevice';
+import { timingSafeEqual } from 'crypto';
 
 /////////////////////////////
 // ELKAlarmPanelDevice
@@ -43,11 +44,11 @@ export class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
 
 	}
 
-	public async sendSetAlarmModeCommand(alarmState: string) {
-		if (alarmState === 'disarm') {
+	public async sendSetAlarmModeCommand(alarmMode: string) {
+		if (alarmMode === 'disarm') {
 			return this.sendCommand('disarm');
 		} else {
-			return this.sendCommand(`arm?armType=${alarmState}`);
+			return this.sendCommand(`arm?armType=${alarmMode}`);
 		}
 	}
 	public async clearAllBypasses() {
@@ -65,29 +66,32 @@ export class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
 	public getAlarmMode() {
 		return this.alarmMode;
 	}
-	public handleEvent(event) {
+	public handleEvent(event: { control?: string; data?: any; node?: any; eventInfo?: any; }) {
 		const areaUpdate = event.eventInfo.ae;
 		const areaId = areaUpdate.attr.area;
 		const updateType = areaUpdate.attr.type;
 		const valueToSet = Number(areaUpdate.attr.val);
 		let valueChanged = false;
-		if (areaId == this.area) {
-			if (updateType == AlarmPanelProperty.AlarmTripState) {
-				if (this.alarmTripState != valueToSet) {
+		if (areaId === this.area) {
+			if (updateType === AlarmPanelProperty.AlarmTripState) {
+				if (this.alarmTripState !== valueToSet) {
+					const oldVal = this.alarmTripState;
 					this.alarmTripState = valueToSet;
-					this.propertyChanged?.emit('', 'alarmTripState', valueToSet);
+					this.emit('PropertyChanged', 'alarmTripState', this.alarmTripState, oldVal,AlarmTripState[this.alarmTripState]);
 					valueChanged = true;
 				}
-			} else if (updateType == AlarmPanelProperty.AlarmState) {
-				if (this.alarmState != valueToSet) {
+			} else if (updateType === AlarmPanelProperty.AlarmState) {
+				if (this.alarmState !== valueToSet) {
+					const oldVal = this.alarmState;
 					this.alarmState = valueToSet;
-					this.propertyChanged?.emit('', 'alarmState', valueToSet);
+					this.emit('PropertyChanged', 'alarmState', this.alarmState, oldVal, AlarmState[this.alarmState]);
 					valueChanged = true;
 				}
-			} else if (updateType == AlarmPanelProperty.AlarmMode) {
-				if (this.alarmMode != valueToSet) {
+			} else if (updateType === AlarmPanelProperty.AlarmMode) {
+				if (this.alarmMode !== valueToSet) {
+					const oldVal = this.alarmMode;
 					this.alarmMode = valueToSet;
-					this.propertyChanged?.emit('', 'alarmMode', valueToSet);
+					this.emit('PropertyChanged', 'alarmMode', this.alarmState, oldVal, AlarmMode[this.alarmMode]);
 					valueChanged = true;
 				}
 			}
@@ -171,14 +175,14 @@ export class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
 	public physicalState: number;
 	public logicalState: number;
 	public voltage: number;
-	constructor(isy, name, area, zone) {
+	constructor(isy: ISY, name: string, area: number, zone: string) {
 		super(isy, {family: Family.Elk, name, address: `ElkZone${zone}`, enabled: true});
 
 		this.area = area;
 		this.zone = zone;
 		// this.name = name;
 		// this.address = "ElkZone" + zone;
-		this.displayName = 'Elk Connected Sensor ' + zone;
+		this.displayName = `Elk Connected Sensor ${zone}`;
 
 		this.deviceFriendlyName = 'Elk Connected Sensor ' + zone;
 
@@ -189,8 +193,14 @@ export class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
 		this.lastChanged = new Date();
 	}
 
+	public async sendCommand(command: string): Promise<any> {
+
+		return this.isy.sendISYCommand(`elk/zone/${this.zone}/cmd/${command}`);
+
+	}
+
 	public async sendBypassToggleCommand() {
-		return this.isy.sendISYCommand('elk/zone/' + this.zone + '/cmd/toggle/bypass');
+		return this.sendCommand(`toggle/bypass`);
 	}
 	public getPhysicalState() {
 		return this.physicalState;
@@ -202,7 +212,7 @@ export class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
 		return this.logicalState;
 	}
 	public getCurrentDoorWindowState() {
-		return (this.physicalState == this.SENSOR_STATE_PHYSICAL_OPEN || this.logicalState == this.SENSOR_STATE_LOGICAL_VIOLATED);
+		return (this.physicalState === this.SENSOR_STATE_PHYSICAL_OPEN || this.logicalState === this.SENSOR_STATE_LOGICAL_VIOLATED);
 	}
 	public getSensorStatus() {
 		return 'PS [' + this.physicalState + '] LS [' + this.logicatState + ']';
@@ -214,28 +224,28 @@ export class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
 			return false;
 		}
 	}
-	public handleEvent(event) {
+	public handleEvent(event: { control?: string; data?: any; node?: any; eventInfo?: any; }) {
 		const zoneUpdate = event.eventInfo.ze;
 		const zone = zoneUpdate.attr.zone;
 		const updateType = zoneUpdate.attr.type;
 		const valueToSet = zoneUpdate.attr.val;
 		let valueChanged = false;
-		if (zone == this.zone) {
-			if (updateType == 51) {
-				if (this.logicalState != valueToSet) {
+		if (zone === this.zone) {
+			if (updateType === 51) {
+				if (this.logicalState !== valueToSet) {
 					this.logicalState = valueToSet;
 					this.propertyChanged?.emit('', 'logicalState', valueToSet);
 					// Not triggering change update on logical state because physical always follows and don't want double notify.
 					// valueChanged = true;
 				}
-			} else if (updateType == 52) {
-				if (this.physicalState != valueToSet) {
+			} else if (updateType === 52) {
+				if (this.physicalState !== valueToSet) {
 					this.physicalState = valueToSet;
 					this.propertyChanged?.emit('', 'physicalState', valueToSet);
 					valueChanged = true;
 				}
-			} else if (updateType == 53) {
-				if (this.voltage != valueToSet) {
+			} else if (updateType === 53) {
+				if (this.voltage !== valueToSet) {
 					this.voltage = valueToSet;
 					this.propertyChanged?.emit('', 'voltage', valueToSet);
 					valueChanged = true;

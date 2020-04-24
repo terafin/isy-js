@@ -13,13 +13,18 @@ export declare class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
     voltage: number;
     constructor(isy: ISY, area: number);
     sendCommand(command: string): Promise<any>;
-    sendSetAlarmModeCommand(alarmState: string): Promise<any>;
+    sendSetAlarmModeCommand(alarmMode: string): Promise<any>;
     clearAllBypasses(): Promise<any>;
     getAlarmStatusAsText(): string;
     getAlarmTripState(): AlarmTripState;
     getAlarmState(): AlarmState;
     getAlarmMode(): AlarmMode;
-    handleEvent(event: any): boolean;
+    handleEvent(event: {
+        control?: string;
+        data?: any;
+        node?: any;
+        eventInfo?: any;
+    }): boolean;
 }
 export declare enum AlarmPanelProperty {
     AlarmMode = 3,
@@ -59,7 +64,8 @@ export declare class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
     physicalState: number;
     logicalState: number;
     voltage: number;
-    constructor(isy: any, name: any, area: any, zone: any);
+    constructor(isy: ISY, name: string, area: number, zone: string);
+    sendCommand(command: string): Promise<any>;
     sendBypassToggleCommand(): Promise<any>;
     getPhysicalState(): number;
     isBypassed(): boolean;
@@ -67,5 +73,10 @@ export declare class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
     getCurrentDoorWindowState(): boolean;
     getSensorStatus(): string;
     isPresent(): boolean;
-    handleEvent(event: any): boolean;
+    handleEvent(event: {
+        control?: string;
+        data?: any;
+        node?: any;
+        eventInfo?: any;
+    }): boolean;
 }

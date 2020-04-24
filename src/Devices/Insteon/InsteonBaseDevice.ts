@@ -3,13 +3,13 @@ import { ISY } from '../../ISY';
 import { byteToDegree, byteToPct, pctToByte } from '../../Utils';
 import { ISYDevice } from '../ISYDevice';
 
-//import { InsteonNLS } from './insteonfam'
-export class InsteonBaseDevice extends ISYDevice<Family.Insteon>{
-	constructor (isy: ISY, node: any) {
+// import { InsteonNLS } from './insteonfam'
+export class InsteonBaseDevice extends ISYDevice<Family.Insteon> {
+	constructor(isy: ISY, node: any) {
 
 		super(isy, node);
 		this.family = Family.Insteon;
-		////this.productName = InsteonNLS.getDeviceDescription(String.fromCharCode(category,device,version));
+		//// this.productName = InsteonNLS.getDeviceDescription(String.fromCharCode(category,device,version));
 		this.childDevices = {};
 	}
 	public convertFrom(value: any, uom: number): any {

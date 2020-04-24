@@ -152,9 +152,13 @@ export declare class InsteonFanDevice extends InsteonBaseDevice {
     constructor(isy: ISY, deviceNode: {
         type: string;
     });
-    handleEvent(event: any): boolean;
+    handleEvent(event: {
+        control?: string;
+        data?: any;
+        node?: any;
+    }): boolean;
     addChild(childDevice: ISYDevice<Family.Insteon>): void;
     updateFanSpeed(level: number): Promise<any>;
-    updateIsOn(isOn: boolean): Promise<void>;
+    updatFanIsOn(isOn: boolean): Promise<void>;
 }
 export {};

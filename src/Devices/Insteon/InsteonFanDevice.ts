@@ -6,7 +6,7 @@ import { InsteonBaseDevice } from './InsteonBaseDevice';
 import { InsteonDimmableDevice } from './InsteonDimmableDevice';
 
 export class InsteonFanMotorDevice extends ISYLevelDevice(ISYBinaryStateDevice(InsteonBaseDevice)) {
-	constructor (isy: ISY, deviceNode: {
+	constructor(isy: ISY, deviceNode: {
 		type: string;
 	}) {
 		super(isy, deviceNode);
@@ -36,18 +36,17 @@ export class InsteonFanMotorDevice extends ISYLevelDevice(ISYBinaryStateDevice(I
 export class InsteonFanDevice extends InsteonBaseDevice {
 	public light: InsteonDimmableDevice;
 	public motor: InsteonFanMotorDevice;
-	constructor (isy: ISY, deviceNode: {
+	constructor(isy: ISY, deviceNode: {
 		type: string;
 	}) {
 		super(isy, deviceNode);
 		this.light = new InsteonDimmableDevice(isy, deviceNode);
-		this.light.on('PropertyChanged', ((a, b, c, d) => { this.emit('PropertyChanged', `light.${a}`, b, c, d); }).bind(this));
+		this.light.on('PropertyChanged', ((a: any, b: any, c: any, d: string) => { this.emit('PropertyChanged', `light.${a}`, b, c, d); }).bind(this));
 		this.addChild(this.light);
 
 	}
 
-
-	public handleEvent(event): boolean {
+	public handleEvent(event: { control?: string; data?: any; node?: any; }): boolean {
 		const child = this.children.find((p) => p.address === event.node);
 		if (child !== undefined) {
 			return child.handleEvent(event);
@@ -60,18 +59,18 @@ export class InsteonFanDevice extends InsteonBaseDevice {
 		if (childDevice instanceof InsteonFanMotorDevice) {
 			this.logger('Fan Motor Found');
 			this.motor = childDevice as InsteonFanMotorDevice;
-			this.motor.on('PropertyChanged', ((a, b, c, d) => { this.emit('PropertyChanged', `motor.${a}`, b, c, d); }).bind(this));
+			this.motor.on('PropertyChanged', ((a: any, b: any, c: any, d: string) => { this.emit('PropertyChanged', `motor.${a}`, b, c, d); }).bind(this));
 		}
 	}
 
 	public async updateFanSpeed(level: number) {
 		return this.motor.updateLevel(level);
 	}
-	public async updateIsOn(isOn: boolean) {
+	public async updatFanIsOn(isOn: boolean) {
 		if (!isOn) {
 			this.motor.updateLevel(States.Level.Min);
 		} else {
-			this.updateLevel(States.Fan.High);
+			this.motor.updateLevel(States.Fan.High);
 		}
 	}
 
