@@ -17,7 +17,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 	public readonly subCategory: number;
 	public readonly type: any;
 	public _parentDevice: ISYDevice<T>;
-	public readonly children: ISYDevice<T>[] = [];
+	public readonly children: Array<ISYDevice<T>> = [];
 	public readonly scenes: ISYScene[] = [];
 	public readonly formatted: any[string] = {};
 	public readonly uom: any[string] = {};
@@ -26,7 +26,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 	public location: string;
 
 	constructor (isy: ISY, node: { family: any; type?: any; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
-		super(isy, node );
+		super(isy, node);
 		this.family = node.family ?? Family.Generic;
 		this.nodeType = 1;
 		this.type = node.type;
@@ -59,7 +59,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 					} (${this.formatted[prop.id]})`
 				);
 			}
-		} else if(node.property){
+		} else if (node.property) {
 			this[node.property.id] = this.convertFrom(
 				Number(node.property.value),
 				Number(node.property.uom)
@@ -122,32 +122,31 @@ export class ISYDevice<T extends Family> extends ISYNode {
 			if (result !== null && result !== undefined) {
 				that.location = result.location;
 				that.displayName = (that.location ?? that.folder) + ' ' + result.spoken;
-				that.logger('The friendly name updated to: ' + that.displayName);
+				that.logger(`The friendly name updated to: ${that.displayName}`);
 			}
-			else
-			{
+			else {
 				that.logger('No notes found.');
 			}
 		}
-		catch (e){
+		catch (e) {
 
 			that.logger(e);
 		}
 
 	}
 
-	async getNotes(): Promise<any> {
+	public async getNotes(): Promise<any> {
 
 		try {
-			let result = await this.isy.callISY(`nodes/${this.address}/notes`);
-			if (result !== null && result !== undefined)
-					return result.NodeProperties;
+			const result = await this.isy.callISY(`nodes/${this.address}/notes`);
+			if (result !== null && result !== undefined) {
+				return result.NodeProperties;
+			}
 			else
-					return null;
+				return null;
 
 		}
-		catch (e)
-		{
+		catch (e) {
 			return null;
 		}
 	}
@@ -187,12 +186,12 @@ export class ISYDevice<T extends Family> extends ISYNode {
 					} (${device.formatted[prop.id]})`
 				);
 			}
-		} else {
+		} else if(node.property){
 			device[node.property.id] = Number(node.property.value);
 			device.formatted[node.property.id] = node.property.formatted;
 			device.uom[node.property.id] = node.property.uom;
 			device.logger(
-				'Property ' + Controls[node.property.id].label + ' (' + node.property.id + ') refreshed to: ' + device[node.property.id] + ' (' + device.formatted[node.property.id] + ')'
+				`Property ${Controls[node.property.id].label} (${node.property.id}) refreshed to: ${device[node.property.id]} (${device.formatted[node.property.id]})`
 			);
 		}
 		return result;
@@ -200,7 +199,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 
 	public handlePropertyChange(propertyName: string, value: any, formattedValue: string) {
 		let changed = false;
-		let priorVal = this[propertyName];
+		const priorVal = this[propertyName];
 		try {
 			const val = this.convertFrom(
 				Number(value),
@@ -226,7 +225,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 				);
 			}
 			if (changed) {
-				this.emit('PropertyChanged',propertyName,val,priorVal,formattedValue);
+				this.emit('PropertyChanged', propertyName, val, priorVal, formattedValue);
 				this.propertyChanged.emit(
 					propertyName,
 					propertyName,
@@ -236,7 +235,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 				this.propertyChanged.emit('', propertyName, val, formattedValue);
 
 				this.scenes.forEach((element) => {
-					this.logger('Recalulating ' + element.name);
+					this.logger(`Recalulating ${element.name}`);
 					element.recalculateState();
 				});
 			}

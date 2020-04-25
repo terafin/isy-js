@@ -29,7 +29,7 @@ export const KeypadDevice = (IB: any) => (class extends IB {
 
 	public addChild(childDevice: ISYDevice<Family.Insteon>)
 	{
-
+		
 		super.addChild(childDevice);
 	}
 });

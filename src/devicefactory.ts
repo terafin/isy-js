@@ -4,7 +4,8 @@ import { parseStringPromise } from 'xml2js';
 import { Categories } from './Categories';
 import { InsteonSwitchDevice, KeypadDevice, InsteonLampDevice } from './Devices/Insteon/InsteonDevice';
 import { InsteonDimmableDevice } from './Devices/Insteon/InsteonDimmableDevice';
-import { InsteonKeypadDimmerDevice, InsteonKeypadRelayDevice } from './Devices/Insteon/InsteonDimmerKeypadDevice';
+import { InsteonKeypadRelayDevice } from "./Devices/Insteon/InsteonKeypadRelayDevice";
+import { InsteonKeypadDimmerDevice } from "./Devices/Insteon/InsteonKeypadDimmerDevice";
 import { InsteonDimmerOutletDevice } from './Devices/Insteon/InsteonDimmerOutletDevice';
 import { InsteonDimmerSwitchDevice } from './Devices/Insteon/InsteonDimmerSwitchDevice';
 import { InsteonDoorWindowSensorDevice } from './Devices/Insteon/InsteonDoorWindowSensorDevice';
@@ -15,7 +16,7 @@ import { InsteonMotionSensorDevice } from './Devices/Insteon/InsteonMotionSensor
 import { InsteonOnOffOutletDevice } from './Devices/Insteon/InsteonOnOffOutletDevice';
 import { InsteonRelayDevice } from './Devices/Insteon/InsteonRelayDevice';
 import { InsteonRelaySwitchDevice } from './Devices/Insteon/InsteonRelaySwitchDevice';
-import { Family, ISYDevice } from './ISY';
+import { Family, ISYDevice, InsteonThermostatDevice, InsteonLockDevice, InsteonSmokeSensorDevice } from './ISY';
 import { parseTypeCode } from './Utils';
 
 export class DeviceFactory {
@@ -484,7 +485,7 @@ export class DeviceFactory {
 			case String.fromCharCode(0o022):
 				retVal = { name: 'Plugin Dimmer', modelNumber: '2632-522' };
 		}
-		if (retVal.class === undefined) retVal.class = InsteonDimmableDevice;
+		if (retVal?.class === undefined) retVal.class = InsteonDimmableDevice;
 		return retVal;
 	}
 
@@ -645,7 +646,7 @@ export class DeviceFactory {
 				retVal = { name: 'INSTEON Motion Sensor', modelNumber: '2420M-SP', class: InsteonMotionSensorDevice };
 				break;
 			case String.fromCharCode(0o002):
-				retVal = { name: 'TriggerLinc', modelNumber: '2421'    };
+				retVal = { name: 'TriggerLinc', modelNumber: '2421', class: InsteonDoorWindowSensorDevice };
 				break;
 			case '\t':
 				retVal = { name: 'Open/Close Sensor', modelNumber: '2843-222', class: InsteonDoorWindowSensorDevice };
@@ -670,7 +671,7 @@ export class DeviceFactory {
 				retVal = { name: 'Leak Sensor', modelNumber: '2852-522', class: InsteonLeakSensorDevice };
 				break;
 			case '\n':
-				return 'INSTEON Smoke Sensor';
+				retVal = { name: 'INSTEON Smoke Sensor', modelNumber: '', class: InsteonSmokeSensorDevice };
 				break;
 			case String.fromCharCode(0o021):
 				retVal = { name: 'INSTEON Hidden Door Sensor', modelNumber: '2845-222', class: InsteonDoorWindowSensorDevice };
@@ -744,10 +745,10 @@ export class DeviceFactory {
 				retVal = { name: 'INSTEON Thermostat 2.0 (HVAC/HP)', modelNumber: '2732-222' };
 				break;
 			case String.fromCharCode(0o027):
-				retVal = { name: 'for Europe', modelNumber: '2732-422) INSTEON Thermostat 2.0 (HVAC/HP' };
+				retVal = { name: 'INSTEON Thermostat 2.0 (HVAC/HP) for Europe', modelNumber: '2732-422' };
 				break;
 			case String.fromCharCode(0o030):
-				retVal = { name: 'for Aus/NZ', modelNumber: '2732-522) INSTEON Thermostat 2.0 (HVAC/HP' };
+				retVal = { name: 'INSTEON Thermostat 2.0 (HVAC/HP) for Aus/NZ', modelNumber: '(2732-522)' };
 				break;
 			case '\n':
 				retVal = { name: 'INSTEON Wireless Thermostat', modelNumber: '2441ZTH' };
@@ -755,18 +756,19 @@ export class DeviceFactory {
 			case String.fromCharCode(0o016):
 				retVal = { name: 'All-In-One INSTEON Thermostat Adapter', modelNumber: '2491T' };
 		}
+		if (retVal?.class === undefined) retVal.class = InsteonThermostatDevice;
 		return retVal;
 	}
 
 	private static getNLSAccessControlInfo(device: number) {
 		const c = String.fromCharCode(device);
-		const retVal = null;
+		const retVal = { name: '' , modelNumber: '', class: InsteonLockDevice };
 		switch (c) {
 			case String.fromCharCode(0o006):
-				return 'MorningLinc';
+				retVal.name = 'MorningLinc';
 				break;
 			case '\n':
-				return 'Lock Controller';
+				retVal.name = 'Lock Controller';
 		}
 		return retVal;
 	}

@@ -15,7 +15,8 @@ import { InsteonDimmableDevice } from './Devices/Insteon/InsteonDimmableDevice';
 import { InsteonDimmerSwitchDevice } from './Devices/Insteon/InsteonDimmerSwitchDevice';
 import { InsteonDoorWindowSensorDevice } from './Devices/Insteon/InsteonDoorWindowSensorDevice';
 import { InsteonFanDevice, InsteonFanMotorDevice } from './Devices/Insteon/InsteonFanDevice';
-import { InsteonKeypadRelayDevice, InsteonKeypadDimmerDevice } from './Devices/Insteon/InsteonDimmerKeypadDevice';
+import { InsteonKeypadRelayDevice } from "./Devices/Insteon/InsteonKeypadRelayDevice";
+import { InsteonKeypadDimmerDevice } from "./Devices/Insteon/InsteonKeypadDimmerDevice";
 import { InsteonLeakSensorDevice } from './Devices/Insteon/InsteonLeakSensorDevice';
 import { InsteonLockDevice } from './Devices/Insteon/InsteonLockDevice';
 import { InsteonMotionSensorDevice } from './Devices/Insteon/InsteonMotionSensorDevice';
@@ -468,7 +469,7 @@ export class ISY extends EventEmitter {
 							} (${device.formatted[prop.id]})`
 						);
 					}
-				} else if(node.property){
+				} else if (node.property) {
 					device[node.property.id] = device.convertFrom(
 						Number(node.property.value),
 						Number(node.property.uom)

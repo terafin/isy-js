@@ -12,7 +12,7 @@ export declare class ISYDevice<T extends Family> extends ISYNode {
     readonly subCategory: number;
     readonly type: any;
     _parentDevice: ISYDevice<T>;
-    readonly children: ISYDevice<T>[];
+    readonly children: Array<ISYDevice<T>>;
     readonly scenes: ISYScene[];
     readonly formatted: any[string];
     readonly uom: any[string];
