@@ -20,7 +20,7 @@ export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter
 	public parentType: NodeType;
 	public readonly elkId: string;
 	public nodeType: number;
-	public propertyChanged: EventEmitter;
+	p
 	public propsInitialized: boolean;
 	public logger: (msg: any) => void;
 	public lastChanged: Date;
@@ -73,14 +73,18 @@ export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter
 		return true;
 	}
 
-	public on(event: 'PropertyChanged', listener: (propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any): this {
-		super.on('PropertyChanged', listener);
+	public on(event: 'PropertyChanged'|'ControlTriggered', listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any)|((controlName: string) => any)): this {
+		super.on(event, listener);
 		return this;
 	}
 
-	public emit(event: 'PropertyChanged', propertyName: string, newValue: any, oldValue: any, formattedValue: string) {
-		return super.emit(event, propertyName, newValue, oldValue, formattedValue);
+	public emit(event: 'PropertyChanged'|'ControlTriggered', propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string) {
+		if('PropertyChanged')
+			return super.emit(event, propertyName, newValue, oldValue, formattedValue);
+		else if('ControlTriggered')
+			return super.emit(event,controlName);
 	}
+
 
 	public handleEvent(event: any): boolean {
 		let actionValue = null;
@@ -102,16 +106,15 @@ export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter
 				this.logger(`Command ${dispName.label} (${e}) triggered.`);
 			} else {
 				this.logger(`Command ${e} triggered.`);
+
 			}
+			let controlName : string = e;
+			this.emit('ControlTriggered', controlName);
 			return false;
 		}
 	}
 
 
 
-	public onPropertyChanged(propertyName = null, callback: (...args) => void) {
-		if (propertyName === null) {
-			this.propertyChanged.addListener('', callback);
-		} else { this.propertyChanged.addListener(propertyName, callback); }
-	}
+
 }

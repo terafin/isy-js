@@ -1,9 +1,9 @@
 import { ISY } from '../../ISY';
 import { Commands, DeviceTypes, States } from '../../ISYConstants';
-import { ISYBinaryStateDevice } from '../ISYDevice';
+import { ISYUpdateableBinaryStateDevice } from '../ISYDevice';
 import { InsteonBaseDevice } from './InsteonBaseDevice';
 
-export class InsteonLockDevice extends ISYBinaryStateDevice(InsteonBaseDevice) {
+export class InsteonLockDevice extends ISYUpdateableBinaryStateDevice(InsteonBaseDevice) {
 	constructor (isy: ISY, deviceNode: {
 		type: string;
 	}) {

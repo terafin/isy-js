@@ -1,7 +1,8 @@
 /// <reference types="node" />
 import { Client } from 'faye-websocket';
 import { Categories } from './Categories';
-import { ELKAlarmPanelDevice, ElkAlarmSensorDevice } from './Devices/Elk/ElkAlarmPanelDevice';
+import { ELKAlarmPanelDevice } from './Devices/Elk/ElkAlarmPanelDevice';
+import { ElkAlarmSensorDevice } from "./Devices/Elk/ElkAlarmSensorDevice";
 import { InsteonBaseDevice } from './Devices/Insteon/InsteonBaseDevice';
 import { InsteonOutletDevice } from './Devices/Insteon/InsteonDevice';
 import { InsteonDimmableDevice } from './Devices/Insteon/InsteonDimmableDevice';
@@ -72,12 +73,12 @@ export declare class ISY extends EventEmitter {
         nodes: {
             folder: any;
         };
-    }): void;
+    }): Promise<void>;
     loadScenes(result: {
         nodes: {
             group: any;
         };
-    }): void;
+    }): Promise<void>;
     loadDevices(obj: {
         nodes: {
             node: any;

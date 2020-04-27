@@ -1,4 +1,3 @@
-import { InsteonDimmableDevice } from './InsteonDimmableDevice';
 declare const InsteonKeypadDimmerDevice_base: {
     new (isy: any, node: any): {
         [x: string]: any;
@@ -7,9 +6,6 @@ declare const InsteonKeypadDimmerDevice_base: {
     [x: string]: any;
 };
 export declare class InsteonKeypadDimmerDevice extends InsteonKeypadDimmerDevice_base {
-    constructor(isy: any, deviceNode: any);
-}
-export declare class InsteonBallastDimmerDevice extends InsteonDimmableDevice {
     constructor(isy: any, deviceNode: any);
 }
 export {};

@@ -16,7 +16,7 @@ export declare class ISYNode extends EventEmitter implements PropertyChangedEven
     parentType: NodeType;
     readonly elkId: string;
     nodeType: number;
-    propertyChanged: EventEmitter;
+    p: any;
     propsInitialized: boolean;
     logger: (msg: any) => void;
     lastChanged: Date;
@@ -32,8 +32,7 @@ export declare class ISYNode extends EventEmitter implements PropertyChangedEven
         ELK_ID?: string;
     });
     handlePropertyChange(propertyName: string, value: any, formattedValue: string): boolean;
-    on(event: 'PropertyChanged', listener: (propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any): this;
-    emit(event: 'PropertyChanged', propertyName: string, newValue: any, oldValue: any, formattedValue: string): boolean;
+    on(event: 'PropertyChanged' | 'ControlTriggered', listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): this;
+    emit(event: 'PropertyChanged' | 'ControlTriggered', propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
     handleEvent(event: any): boolean;
-    onPropertyChanged(propertyName: any, callback: (...args: any[]) => void): void;
 }

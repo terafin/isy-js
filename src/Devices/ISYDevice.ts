@@ -186,7 +186,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 					} (${device.formatted[prop.id]})`
 				);
 			}
-		} else if(node.property){
+		} else if (node.property) {
 			device[node.property.id] = Number(node.property.value);
 			device.formatted[node.property.id] = node.property.formatted;
 			device.uom[node.property.id] = node.property.uom;
@@ -226,13 +226,6 @@ export class ISYDevice<T extends Family> extends ISYNode {
 			}
 			if (changed) {
 				this.emit('PropertyChanged', propertyName, val, priorVal, formattedValue);
-				this.propertyChanged.emit(
-					propertyName,
-					propertyName,
-					val,
-					formattedValue
-				);
-				this.propertyChanged.emit('', propertyName, val, formattedValue);
 
 				this.scenes.forEach((element) => {
 					this.logger(`Recalulating ${element.name}`);
@@ -247,15 +240,22 @@ export class ISYDevice<T extends Family> extends ISYNode {
 
 type Constructor<T> = new (...args: any[]) => T;
 
-export const ISYBinaryStateDevice = <T extends Constructor<ISYDevice<any>>>(
+
+export const ISYBinaryStateDevice = <T extends Constructor<ISYDevice<any>>>(Base: T) => {
+	return class extends Base {
+		get state(): boolean {
+			return this.ST > 0;
+		}
+	};
+};
+
+export const ISYUpdateableBinaryStateDevice = <T extends Constructor<ISYDevice<any>>>(
 	Base: T
 ) => {
 	return class extends Base {
 		get state(): boolean {
 			return this.ST > 0;
 		}
-
-
 
 		public async updateState(state: boolean): Promise<any> {
 			if (state !== this.state || this.pending.ST > 0 !== this.state) {
@@ -270,8 +270,20 @@ export const ISYBinaryStateDevice = <T extends Constructor<ISYDevice<any>>>(
 	};
 };
 
-// tslint:disable-next-line: variable-name
+
+
 export const ISYLevelDevice = <T extends Constructor<ISYDevice<any>>>(base: T) =>
+	class extends base {
+		get level(): number {
+			return this.ST;
+		}
+
+		
+	};
+
+// tslint:disable-next-line: variable-name
+
+export const ISYUpdateableLevelDevice = <T extends Constructor<ISYDevice<any>>>(base: T) =>
 	class extends base {
 		get level(): number {
 			return this.ST;

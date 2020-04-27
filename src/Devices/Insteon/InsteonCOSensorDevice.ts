@@ -1,5 +1,5 @@
 import { ISY } from '../../ISY';
-import { ISYBinaryStateDevice } from '../ISYDevice';
+import { ISYUpdateableBinaryStateDevice, ISYBinaryStateDevice } from '../ISYDevice';
 import { InsteonBaseDevice } from './InsteonBaseDevice';
 
 export class InsteonCOSensorDevice extends ISYBinaryStateDevice(InsteonBaseDevice) {

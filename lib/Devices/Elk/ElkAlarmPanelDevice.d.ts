@@ -5,7 +5,7 @@ export declare class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
     alarmTripState: AlarmTripState;
     alarmState: AlarmState;
     alarmMode: AlarmMode;
-    area: any;
+    area: number;
     deviceFriendlyName: string;
     deviceType: any;
     connectionType: string;
@@ -54,29 +54,15 @@ export declare enum AlarmState {
     FORCE_ARMED_VIOLATION = 5,
     ARMED_WITH_BYPASS = 6
 }
-export declare class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
-    area: any;
-    zone: any;
-    deviceFriendlyName: string;
-    deviceType: any;
-    connectionType: string;
-    batteryOperated: boolean;
-    physicalState: number;
-    logicalState: number;
-    voltage: number;
-    constructor(isy: ISY, name: string, area: number, zone: string);
-    sendCommand(command: string): Promise<any>;
-    sendBypassToggleCommand(): Promise<any>;
-    getPhysicalState(): number;
-    isBypassed(): boolean;
-    getLogicalState(): number;
-    getCurrentDoorWindowState(): boolean;
-    getSensorStatus(): string;
-    isPresent(): boolean;
-    handleEvent(event: {
-        control?: string;
-        data?: any;
-        node?: any;
-        eventInfo?: any;
-    }): boolean;
+export declare enum AlarmSensorPhysicalState {
+    NOT_CONFIGURED = 0,
+    OPEN = 1,
+    EOL = 2,
+    SHORT = 3
+}
+export declare enum AlarmSensorLogicalState {
+    NORMAL = 0,
+    TROUBLE = 1,
+    VIOLATED = 2,
+    BYPASSED = 3
 }

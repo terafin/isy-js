@@ -1,11 +1,11 @@
 import { Family } from '../../Families';
 import { ISY, ISYNode } from '../../ISY';
 import { States } from '../../ISYConstants';
-import { ISYBinaryStateDevice, ISYDevice, ISYLevelDevice } from '../ISYDevice';
+import { ISYUpdateableBinaryStateDevice, ISYDevice, ISYUpdateableLevelDevice } from '../ISYDevice';
 import { InsteonBaseDevice } from './InsteonBaseDevice';
 import { InsteonDimmableDevice } from './InsteonDimmableDevice';
 
-export class InsteonFanMotorDevice extends ISYLevelDevice(ISYBinaryStateDevice(InsteonBaseDevice)) {
+export class InsteonFanMotorDevice extends ISYUpdateableLevelDevice(ISYUpdateableBinaryStateDevice(InsteonBaseDevice)) {
 	constructor(isy: ISY, deviceNode: {
 		type: string;
 	}) {
@@ -51,7 +51,7 @@ export class InsteonFanDevice extends InsteonBaseDevice {
 		if (child !== undefined) {
 			return child.handleEvent(event);
 		}
-		return null;
+		return false;
 	}
 
 	public addChild(childDevice: ISYDevice<Family.Insteon>) {

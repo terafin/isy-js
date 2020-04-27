@@ -8,8 +8,3 @@ export class InsteonKeypadDimmerDevice extends KeypadDevice(InsteonDimmableDevic
 }
 
 
-export class InsteonBallastDimmerDevice extends InsteonDimmableDevice {
-    constructor (isy: any, deviceNode: any) {
-        super(isy, deviceNode);
-    }
-}

@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { Family } from '../../Families';
 import { ISY } from '../../ISY';
 import { ISYDevice } from '../ISYDevice';
@@ -47,15 +46,14 @@ declare const InsteonFanMotorDevice_base: {
         parentType: import("../../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        propertyChanged: import("events").EventEmitter;
+        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
-        on(event: "PropertyChanged", listener: (propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any): any;
-        emit(event: "PropertyChanged", propertyName: string, newValue: any, oldValue: any, formattedValue: string): boolean;
+        on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
+        emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
-        onPropertyChanged(propertyName: any, callback: (...args: any[]) => void): void;
         addListener(event: string | symbol, listener: (...args: any[]) => void): any;
         once(event: string | symbol, listener: (...args: any[]) => void): any;
         prependListener(event: string | symbol, listener: (...args: any[]) => void): any;
@@ -113,15 +111,14 @@ declare const InsteonFanMotorDevice_base: {
         parentType: import("../../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        propertyChanged: import("events").EventEmitter;
+        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
-        on(event: "PropertyChanged", listener: (propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any): any;
-        emit(event: "PropertyChanged", propertyName: string, newValue: any, oldValue: any, formattedValue: string): boolean;
+        on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
+        emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
-        onPropertyChanged(propertyName: any, callback: (...args: any[]) => void): void;
         addListener(event: string | symbol, listener: (...args: any[]) => void): any;
         once(event: string | symbol, listener: (...args: any[]) => void): any;
         prependListener(event: string | symbol, listener: (...args: any[]) => void): any;

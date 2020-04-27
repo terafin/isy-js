@@ -1,4 +1,4 @@
-import { ISYBinaryStateDevice } from './Devices/ISYDevice';
+import { ISYUpdateableBinaryStateDevice } from './Devices/ISYDevice';
 import { InsteonBaseDevice } from './ISY';
 
 

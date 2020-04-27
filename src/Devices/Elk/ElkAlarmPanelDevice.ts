@@ -1,7 +1,8 @@
+import { timingSafeEqual } from 'crypto';
 import { Family } from '../../Families';
 import { ISY } from '../../ISY';
 import { ISYDevice } from '../ISYDevice';
-import { timingSafeEqual } from 'crypto';
+import { ElkAlarmSensorDevice } from './ElkAlarmSensorDevice';
 
 /////////////////////////////
 // ELKAlarmPanelDevice
@@ -9,10 +10,10 @@ import { timingSafeEqual } from 'crypto';
 //
 export class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
 
-	 public alarmTripState: AlarmTripState;
-	 public alarmState: AlarmState;
-	 public alarmMode: AlarmMode;
-	public area: any;
+	public alarmTripState: AlarmTripState;
+	public alarmState: AlarmState;
+	public alarmMode: AlarmMode;
+	public area: number;
 
 	public deviceFriendlyName: string;
 	public deviceType: any;
@@ -22,7 +23,7 @@ export class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
 
 	constructor(isy: ISY, area: number) {
 
-		super(isy, { family: Family.Elk, type: '0.0.0.0', enabled: true, address: 'ElkAlarmPanel' + area, name: 'Elk Alarm Panel ' + area });
+		super(isy, { family: Family.Elk, type: '0.0.0.0', enabled: true, address: `ElkAlarmPanel_${area}`, name: `Elk Alarm Panel ${area}` });
 
 		this.area = area;
 		this.alarmTripState = AlarmTripState.DISARMED;
@@ -77,7 +78,7 @@ export class ELKAlarmPanelDevice extends ISYDevice<Family.Elk> {
 				if (this.alarmTripState !== valueToSet) {
 					const oldVal = this.alarmTripState;
 					this.alarmTripState = valueToSet;
-					this.emit('PropertyChanged', 'alarmTripState', this.alarmTripState, oldVal,AlarmTripState[this.alarmTripState]);
+					this.emit('PropertyChanged', 'alarmTripState', this.alarmTripState, oldVal, AlarmTripState[this.alarmTripState]);
 					valueChanged = true;
 				}
 			} else if (updateType === AlarmPanelProperty.AlarmState) {
@@ -111,7 +112,7 @@ export enum AlarmPanelProperty {
 	AlarmTripState = 1
 }
 
-export  enum AlarmMode {
+export enum AlarmMode {
 	DISARMED = 0,
 	AWAY = 1,
 	STAY = 2,
@@ -162,108 +163,25 @@ ELKAlarmPanelDevice.prototype.ALARM_STATE_ARMED_FULLY = 4;
 ELKAlarmPanelDevice.prototype.ALARM_STATE_FORCE_ARMED_VIOLATION = 5;
 ELKAlarmPanelDevice.prototype.ALARM_STATE_ARMED_WITH_BYPASS = 6;
 
-/////////////////////////////
-// ELKAlarmSensor
-//
-export class ElkAlarmSensorDevice extends ISYDevice<Family.Elk> {
-	public area: any;
-	public zone: any;
-	public deviceFriendlyName: string;
-	public deviceType: any;
-	public connectionType: string;
-	public batteryOperated: boolean;
-	public physicalState: number;
-	public logicalState: number;
-	public voltage: number;
-	constructor(isy: ISY, name: string, area: number, zone: string) {
-		super(isy, {family: Family.Elk, name, address: `ElkZone${zone}`, enabled: true});
-
-		this.area = area;
-		this.zone = zone;
-		// this.name = name;
-		// this.address = "ElkZone" + zone;
-		this.displayName = `Elk Connected Sensor ${zone}`;
-
-		this.deviceFriendlyName = 'Elk Connected Sensor ' + zone;
-
-		this.connectionType = 'Elk Network';
-		this.batteryOperated = false;
-		this.physicalState = this.SENSOR_STATE_PHYSICAL_NOT_CONFIGURED;
-		this.logicalState = this.SENSOR_STATE_LOGICAL_NORMAL;
-		this.lastChanged = new Date();
-	}
-
-	public async sendCommand(command: string): Promise<any> {
-
-		return this.isy.sendISYCommand(`elk/zone/${this.zone}/cmd/${command}`);
-
-	}
-
-	public async sendBypassToggleCommand() {
-		return this.sendCommand(`toggle/bypass`);
-	}
-	public getPhysicalState() {
-		return this.physicalState;
-	}
-	public isBypassed() {
-		return (this.logicalState === 3);
-	}
-	public getLogicalState() {
-		return this.logicalState;
-	}
-	public getCurrentDoorWindowState() {
-		return (this.physicalState === this.SENSOR_STATE_PHYSICAL_OPEN || this.logicalState === this.SENSOR_STATE_LOGICAL_VIOLATED);
-	}
-	public getSensorStatus() {
-		return 'PS [' + this.physicalState + '] LS [' + this.logicatState + ']';
-	}
-	public isPresent() {
-		if (this.voltage < 65 || this.voltage > 80) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	public handleEvent(event: { control?: string; data?: any; node?: any; eventInfo?: any; }) {
-		const zoneUpdate = event.eventInfo.ze;
-		const zone = zoneUpdate.attr.zone;
-		const updateType = zoneUpdate.attr.type;
-		const valueToSet = zoneUpdate.attr.val;
-		let valueChanged = false;
-		if (zone === this.zone) {
-			if (updateType === 51) {
-				if (this.logicalState !== valueToSet) {
-					this.logicalState = valueToSet;
-					this.propertyChanged?.emit('', 'logicalState', valueToSet);
-					// Not triggering change update on logical state because physical always follows and don't want double notify.
-					// valueChanged = true;
-				}
-			} else if (updateType === 52) {
-				if (this.physicalState !== valueToSet) {
-					this.physicalState = valueToSet;
-					this.propertyChanged?.emit('', 'physicalState', valueToSet);
-					valueChanged = true;
-				}
-			} else if (updateType === 53) {
-				if (this.voltage !== valueToSet) {
-					this.voltage = valueToSet;
-					this.propertyChanged?.emit('', 'voltage', valueToSet);
-					valueChanged = true;
-				}
-			}
-		}
-		if (valueChanged) {
-			this.lastChanged = new Date();
-		}
-		return valueChanged;
-	}
+// Logical Status for sensors
+export enum AlarmSensorPhysicalState {
+	NOT_CONFIGURED = 0,
+	OPEN = 1,
+	EOL = 2,
+	SHORT = 3
 }
 
-// Logical Status for sensors
 ElkAlarmSensorDevice.prototype.SENSOR_STATE_PHYSICAL_NOT_CONFIGURED = 0;
 ElkAlarmSensorDevice.prototype.SENSOR_STATE_PHYSICAL_OPEN = 1;
 ElkAlarmSensorDevice.prototype.SENSOR_STATE_PHYSICAL_EOL = 2;
 ElkAlarmSensorDevice.prototype.SENSOR_STATE_PHYSICAL_SHORT = 3;
+
+export enum AlarmSensorLogicalState {
+	NORMAL = 0,
+	TROUBLE = 1,
+	VIOLATED = 2,
+	BYPASSED = 3
+}
 
 // Physical status for sensors
 ElkAlarmSensorDevice.prototype.SENSOR_STATE_LOGICAL_NORMAL = 0;
