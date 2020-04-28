@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { ISY } from '../../ISY';
 import { InsteonRelayDevice } from './InsteonRelayDevice';
 declare const InsteonDimmableDevice_base: {
@@ -43,11 +44,11 @@ declare const InsteonDimmableDevice_base: {
         parentType: import("../../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
+        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;

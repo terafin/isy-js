@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { Family } from '../Families';
 import { ISY } from '../ISY';
 import { ISYNode } from '../ISYNode';
@@ -20,7 +21,7 @@ export declare class ISYDevice<T extends Family> extends ISYNode {
     location: string;
     constructor(isy: ISY, node: {
         family: any;
-        type?: any;
+        type?: string;
         enabled: any;
         deviceClass?: any;
         pnode?: any;
@@ -88,11 +89,11 @@ export declare const ISYBinaryStateDevice: <T extends Constructor<ISYDevice<any>
         parentType: import("../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
+        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
@@ -154,11 +155,11 @@ export declare const ISYUpdateableBinaryStateDevice: <T extends Constructor<ISYD
         parentType: import("../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
+        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
@@ -219,11 +220,11 @@ export declare const ISYLevelDevice: <T extends Constructor<ISYDevice<any>>>(bas
         parentType: import("../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
+        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
@@ -285,11 +286,11 @@ export declare const ISYUpdateableLevelDevice: <T extends Constructor<ISYDevice<
         parentType: import("../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
+        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;

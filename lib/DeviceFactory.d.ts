@@ -1,30 +1,44 @@
 import { ISYDevice } from './ISY';
 export declare class DeviceFactory {
-    static createDevice(nodeDef: any): {
+    static getDeviceDetails(node: {
+        family?: any;
+        type?: any;
+        address?: any;
+        nodeDefId: any;
+    }): {
+        name: string;
+        modelNumber?: string;
+        version?: string;
+        class?: typeof ISYDevice;
+        unsupported?: true;
+    };
+    static getInsteonDeviceDetails(typeCode: string, node: {
+        address?: any;
+        nodeDefId: any;
+    }): {
+        name: string;
+        modelNumber?: string;
+        version?: string;
+        class: typeof ISYDevice;
+        unsupported?: true;
+    };
+    static getNLSNetworkBridgeInfo(deviceCode: number): {
         name: string;
         modelNumber: string;
         version: string;
         class: typeof ISYDevice;
     };
-    static getDeviceDetails(family: number, typeCode: string): {
+    static getNLSIrrigationControlInfo(deviceCode: number): {
         name: string;
-        modelNumber: string;
-        version: string;
-        class: typeof ISYDevice;
+        modelNumber?: string;
+        version?: string;
+        class?: typeof ISYDevice;
     };
-    static getInsteonDeviceDetails(typeCode: string): {
+    static getNLSSwitchLightInfo(deviceCode: number, subAddress: string): {
         name: string;
-        modelNumber: string;
-        version: string;
-        class: typeof ISYDevice;
-    };
-    static getNLSNetworkBridgeInfo(device: number): any;
-    static getNLSIrrigationControlInfo(device: number): string;
-    static getNLSSwitchLightInfo(device: number): {
-        name: string;
-        modelNumber: string;
-        version: string;
-        class: typeof ISYDevice;
+        modelNumber?: string;
+        version?: string;
+        class?: typeof ISYDevice;
     };
     private static getNLSDimLightInfo;
     private static getNLSControllerInfo;

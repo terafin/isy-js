@@ -6,9 +6,7 @@ import { InsteonBaseDevice } from './InsteonBaseDevice';
 import { InsteonDimmableDevice } from './InsteonDimmableDevice';
 
 export class InsteonFanMotorDevice extends ISYUpdateableLevelDevice(ISYUpdateableBinaryStateDevice(InsteonBaseDevice)) {
-	constructor(isy: ISY, deviceNode: {
-		type: string;
-	}) {
+	constructor (isy: ISY, deviceNode: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
 		super(isy, deviceNode);
 		this.hidden = true;
 	}
@@ -25,9 +23,9 @@ export class InsteonFanMotorDevice extends ISYUpdateableLevelDevice(ISYUpdateabl
 	}
 	public async updateIsOn(isOn: boolean) {
 		if (!isOn) {
-			this.updateLevel(States.Level.Min);
+			return this.updateLevel(States.Level.Min);
 		} else {
-			this.updateLevel(States.Level.Max);
+			return this.updateLevel(States.Level.Max);
 		}
 	}
 
@@ -36,17 +34,15 @@ export class InsteonFanMotorDevice extends ISYUpdateableLevelDevice(ISYUpdateabl
 export class InsteonFanDevice extends InsteonBaseDevice {
 	public light: InsteonDimmableDevice;
 	public motor: InsteonFanMotorDevice;
-	constructor(isy: ISY, deviceNode: {
-		type: string;
-	}) {
+	constructor(isy: ISY, deviceNode: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
 		super(isy, deviceNode);
 		this.light = new InsteonDimmableDevice(isy, deviceNode);
 		this.light.on('PropertyChanged', ((a: any, b: any, c: any, d: string) => { this.emit('PropertyChanged', `light.${a}`, b, c, d); }).bind(this));
 		this.addChild(this.light);
-
 	}
 
 	public handleEvent(event: { control?: string; data?: any; node?: any; }): boolean {
+		this.isy.logger(JSON.stringify(event));
 		const child = this.children.find((p) => p.address === event.node);
 		if (child !== undefined) {
 			return child.handleEvent(event);

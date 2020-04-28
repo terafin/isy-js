@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { ISY } from '../../ISY';
 import { InsteonBaseDevice } from './InsteonBaseDevice';
 declare const InsteonRelayDevice_base: {
@@ -43,11 +44,11 @@ declare const InsteonRelayDevice_base: {
         parentType: import("../../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
+        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
@@ -68,7 +69,18 @@ declare const InsteonRelayDevice_base: {
 } & typeof InsteonBaseDevice;
 export declare class InsteonRelayDevice extends InsteonRelayDevice_base {
     constructor(isy: ISY, node: {
-        type: string;
+        family: any;
+        type?: string;
+        enabled: any;
+        deviceClass?: any;
+        pnode?: any;
+        property?: any;
+        flag?: any;
+        nodeDefId?: string;
+        address?: string;
+        name?: string;
+        parent?: any;
+        ELK_ID?: string;
     });
     get isOn(): boolean;
     updateIsOn(isOn: boolean): Promise<any>;

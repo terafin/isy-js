@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { ISY } from '../../ISY';
 import { InsteonBaseDevice } from './InsteonBaseDevice';
 declare const InsteonSmokeSensorDevice_base: {
@@ -42,11 +43,11 @@ declare const InsteonSmokeSensorDevice_base: {
         parentType: import("../../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
+        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
@@ -67,7 +68,18 @@ declare const InsteonSmokeSensorDevice_base: {
 } & typeof InsteonBaseDevice;
 export declare class InsteonSmokeSensorDevice extends InsteonSmokeSensorDevice_base {
     constructor(isy: ISY, deviceNode: {
-        type: string;
+        family: any;
+        type?: string;
+        enabled: any;
+        deviceClass?: any;
+        pnode?: any;
+        property?: any;
+        flag?: any;
+        nodeDefId?: string;
+        address?: string;
+        name?: string;
+        parent?: any;
+        ELK_ID?: string;
     });
     get smokeDetected(): boolean;
 }

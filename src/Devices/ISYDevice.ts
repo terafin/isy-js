@@ -10,6 +10,7 @@ import { threadId } from 'worker_threads';
 
 export class ISYDevice<T extends Family> extends ISYNode {
 	public family: T;
+
 	public readonly typeCode: string;
 	public readonly deviceClass: any;
 	public readonly parentAddress: any;
@@ -25,7 +26,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 	public hidden: boolean = false;
 	public location: string;
 
-	constructor (isy: ISY, node: { family: any; type?: any; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
+	constructor (isy: ISY, node: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
 		super(isy, node);
 		this.family = node.family ?? Family.Generic;
 		this.nodeType = 1;
@@ -277,8 +278,6 @@ export const ISYLevelDevice = <T extends Constructor<ISYDevice<any>>>(base: T) =
 		get level(): number {
 			return this.ST;
 		}
-
-		
 	};
 
 // tslint:disable-next-line: variable-name
@@ -290,7 +289,7 @@ export const ISYUpdateableLevelDevice = <T extends Constructor<ISYDevice<any>>>(
 		}
 
 		public async updateLevel(level: number): Promise<any> {
-			if (level !== this.ST || level !== this.pending.ST) {
+			if (level !== this.ST && level !== (this.pending.ST ?? this.ST)) {
 
 				this.pending.ST = level;
 				if (level > 0) {
@@ -308,6 +307,6 @@ export const ISYUpdateableLevelDevice = <T extends Constructor<ISYDevice<any>>>(
 					});
 				}
 			}
-			return Promise.resolve({});
+			return Promise.resolve();
 		}
 	};

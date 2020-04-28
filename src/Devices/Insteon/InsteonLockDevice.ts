@@ -4,9 +4,8 @@ import { ISYUpdateableBinaryStateDevice } from '../ISYDevice';
 import { InsteonBaseDevice } from './InsteonBaseDevice';
 
 export class InsteonLockDevice extends ISYUpdateableBinaryStateDevice(InsteonBaseDevice) {
-	constructor (isy: ISY, deviceNode: {
-		type: string;
-	}) {
+	constructor (isy: ISY, deviceNode: any
+	) {
 		super(isy, deviceNode);
 	}
 	public sendLockCommand(lockState: any, resultHandler: any) {

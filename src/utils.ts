@@ -45,11 +45,15 @@ export async function getAsync(url: string, options: any): Promise<any> {
 				reject(ms);
 			});
 	});
-	//await lastrequest;
 
-	//lastrequest = p;
-
-	return p;
+	try
+	{
+		await lastrequest;
+	}
+	finally
+	{
+		return p;
+	}
 }
 
 export enum Family {

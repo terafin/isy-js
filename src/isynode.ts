@@ -7,6 +7,7 @@ import { PropertyChangedEventEmitter } from './Utils';
 
 
 export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter {
+
 	public readonly isy: ISY;
 	public readonly flag: any;
 	public readonly nodeDefId: string;
@@ -20,7 +21,7 @@ export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter
 	public parentType: NodeType;
 	public readonly elkId: string;
 	public nodeType: number;
-	p
+
 	public propsInitialized: boolean;
 	public logger: (msg: any) => void;
 	public lastChanged: Date;
@@ -73,6 +74,12 @@ export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter
 		return true;
 	}
 
+	public handleControlTrigger(controlName: string): boolean {
+		//this.lastChanged = new Date();
+
+		return true;
+	}
+
 	public on(event: 'PropertyChanged'|'ControlTriggered', listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any)|((controlName: string) => any)): this {
 		super.on(event, listener);
 		return this;
@@ -98,7 +105,12 @@ export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter
 			// property not command
 			const formatted = 'fmtAct' in event ? event.fmtAct : actionValue;
 			return this.handlePropertyChange(event.control, actionValue, formatted);
-		} else {
+		}
+		else if(event.control === '_3')
+		{
+			this.logger(`Received Node Change Event: ${JSON.stringify(event)}. These are currently unsupported.`);
+		}
+		else {
 			// this.logger(event.control);
 			const e = event.control;
 			const dispName = Controls[e];
@@ -109,8 +121,8 @@ export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter
 
 			}
 			let controlName : string = e;
-			this.emit('ControlTriggered', controlName);
-			return false;
+			this.handleControlTrigger(controlName);
+			return true;
 		}
 	}
 

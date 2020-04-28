@@ -199,8 +199,8 @@ export class ISY extends EventEmitter {
 			if (this.debugLogEnabled) { } {
 				writeFile('ISYNodesDump.json', JSON.stringify(result), this.logger);
 			}
-			await this.loadFolders(result).catch(p => this.logger.error('Error Loading Folders',p));
-			await this.loadDevices(result).catch(p => this.logger.error('Error Loading Devices', p))
+			await this.loadFolders(result).catch(p => this.logger.error('Error Loading Folders', p));
+			await this.loadDevices(result).catch(p => this.logger.error('Error Loading Devices', p));
 			await this.loadScenes(result).catch(p => this.logger.error('Error Loading Scenes', p));
 		} catch (e) {
 
@@ -209,8 +209,7 @@ export class ISY extends EventEmitter {
 		return Promise.resolve();
 	}
 
-	public async loadFolders(result: { nodes: { folder: any; }; })
-	{
+	public async loadFolders(result: { nodes: { folder: any; }; }) {
 		this.logger('Loading Folders');
 		if (result?.nodes?.folder) {
 			for (const folder of result.nodes.folder) {
@@ -223,74 +222,79 @@ export class ISY extends EventEmitter {
 	public async loadScenes(result: { nodes: { group: any; }; }) {
 
 		this.logger('Loading Scenes');
-			for (const scene of result.nodes.group) {
-				if (scene.name === 'ISY' || scene.name === 'Auto DR') {
-					continue;
-				} // Skip ISY & Auto DR Scenes
+		for (const scene of result.nodes.group) {
+			if (scene.name === 'ISY' || scene.name === 'Auto DR') {
+				continue;
+			} // Skip ISY & Auto DR Scenes
 
-				const newScene = new ISYScene(this, scene);
-				this.sceneList.set(newScene.address, newScene);
-			}
+			const newScene = new ISYScene(this, scene);
+			this.sceneList.set(newScene.address, newScene);
+		}
 
 
 	}
 
 	public async loadDevices(obj: { nodes: { node: any; }; }) {
 
-			this.logger('Loading Devices');
-			for (const device of obj.nodes.node) {
-				if (!this.deviceMap.has(device.pnode)) {
-					const address = device.address;
-					this.deviceMap[device.pnode] = {
-						address
-					};
-				} else {
-					this.deviceMap[device.pnode].push(device.address);
-				}
-				let newDevice: ISYDevice<any> = null;
-
-				// let deviceTypeInfo = this.isyTypeToTypeName(device.type, device.address);
-				// this.logger(JSON.stringify(deviceTypeInfo));
-
-				const enabled = Boolean(device.enabled);
-				const d = DeviceFactory.createDevice(device);
-
-				if (d.class) {
-					newDevice = new d.class(this, device);
-					newDevice.productName = d.name;
-					newDevice.model = `(${d.modelNumber}) ${d.name} v.${d.version}`;
-					newDevice.modelNumber = d.modelNumber;
-					newDevice.version = d.version;
-				}
-				if (enabled) {
-
-					if (newDevice !== null) {
-						try {
-							await newDevice.refreshNotes();
-
-						} catch (e) {
-							this.logger('No notes found.');
-						}
-						// if (!newDevice.hidden) {
-						this.deviceList.set(newDevice.address, newDevice);
-						// }
-
-						// this.deviceList.push(newDevice);
-					} else {
-						this.logger(
-							`Device ${device.name} with type: ${device.type} and nodedef: ${
-							device.nodeDefId
-							} is not specifically supported, returning generic device object. `
-						);
-
-						newDevice = new ISYDevice(this, device);
-					}
-				} else {
-					this.logger(`Ignoring disabled device: ${device.name}`);
-				}
+		this.logger('Loading Devices');
+		for (const device of obj.nodes.node) {
+			if (!this.deviceMap.has(device.pnode)) {
+				const address = device.address;
+				this.deviceMap[device.pnode] = {
+					address
+				};
+			} else {
+				this.deviceMap[device.pnode].push(device.address);
 			}
+			let newDevice: ISYDevice<any> = null;
 
-			this.logger(`Devices: ${this.deviceList.size} added.`);
+			// let deviceTypeInfo = this.isyTypeToTypeName(device.type, device.address);
+			// this.logger(JSON.stringify(deviceTypeInfo));
+
+			const enabled = Boolean(device.enabled);
+			const d = DeviceFactory.getDeviceDetails(device);
+
+			if (d.class) {
+				newDevice = new d.class(this, device);
+				newDevice.productName = d.name;
+				newDevice.model = `(${d.modelNumber}) ${d.name} v.${d.version}`;
+				newDevice.modelNumber = d.modelNumber;
+				newDevice.version = d.version;
+			}
+			if (enabled) {
+				if (newDevice === null) {
+					this.logger.warn(
+						`Device type resolution failed for ${device.name} with type: ${device.type} and nodedef: ${
+						device.nodeDefId}`
+					);
+					newDevice = new ISYDevice(this, device);
+				}
+				else if (newDevice !== null) {
+					if (d.unsupported) {
+						this.logger.warn('New device not supported: ' + JSON.stringify(device) + ' /n It has been mapped to: ' + d.class.name);
+					}
+					try {
+						await newDevice.refreshNotes();
+
+					} catch (e) {
+						this.logger('No notes found.');
+					}
+
+					// if (!newDevice.hidden) {
+
+					// }
+
+					// this.deviceList.push(newDevice);
+				} else {
+
+				}
+				this.deviceList.set(newDevice.address, newDevice);
+			} else {
+				this.logger(`Ignoring disabled device: ${device.name}`);
+			}
+		}
+
+		this.logger(`Devices: ${this.deviceList.size} added.`);
 
 
 	}
@@ -465,7 +469,14 @@ export class ISY extends EventEmitter {
 			}
 			for (const node of result.nodes.node) {
 				this.logger(node);
-				const device = that.getDevice(node.id);
+				let device = that.getDevice(node.id);
+				if (device !== null && device !== undefined) {
+					let child = device.children.find(p => p.address === node.id);
+					if (child) {
+						//Case FanLinc where we treat the light as a child of the fan.
+						device = child;
+					}
+				}
 				if (Array.isArray(node.property)) {
 					for (const prop of node.property) {
 						device[prop.id] = device.convertFrom(Number(prop.value), Number(prop.uom));
@@ -544,7 +555,7 @@ export class ISY extends EventEmitter {
 
 			});
 		} catch (e) {
-			this.logger(`Error initializing ISY: ${JSON.stringify(e)}`);
+			this.logger.error(`Error initializing ISY: ${JSON.stringify(e)}`);
 
 		} finally {
 			if (this.nodesLoaded !== true) {
@@ -556,7 +567,7 @@ export class ISY extends EventEmitter {
 	}
 
 	public async  handleInitializeError(step: string, reason: any): Promise<any> {
-		this.logger(`Error initializing ISY (${step}): ${JSON.stringify(reason)}`);
+		this.logger.error(`Error initializing ISY (${step}): ${JSON.stringify(reason)}`);
 		return Promise.reject(reason);
 	}
 
@@ -617,9 +628,13 @@ export class ISY extends EventEmitter {
 						if (impactedDevice !== undefined && impactedDevice !== null) {
 							impactedDevice.handleEvent(evt);
 						} else {
-							this.logger(EventType[Number(stringControl)] + ' Event for Unidentified Device: ' + JSON.stringify(evt));
+							this.logger.warn(EventType[Number(stringControl)] + ' Event for Unidentified Device: ' + JSON.stringify(evt));
 						}
 					} else {
+						if(stringControl === EventType.NodeChanged.toString())
+						{
+							this.logger(`Received Node Change Event: ${JSON.stringify(evt)}. These are currently unsupported.`);
+						}
 						this.logger(`Unhandled ${EventType[Number(stringControl)]} Event: ${JSON.stringify(evt)}`);
 					}
 
@@ -677,8 +692,9 @@ export class ISY extends EventEmitter {
 		let s = this.deviceList.get(address);
 		if (!parentsOnly) {
 			if (s === null) {
-				return this.deviceList[`${address.substr(0, address.length - 1)} 1`];
+				s = this.deviceList[`${address.substr(0, address.length - 1)} 1`];
 			}
+
 		} else {
 			while (
 				s.parentAddress !== undefined &&

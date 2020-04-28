@@ -5,9 +5,9 @@ import { ISYDevice } from '../ISYDevice';
 
 // import { InsteonNLS } from './insteonfam'
 export class InsteonBaseDevice extends ISYDevice<Family.Insteon> {
-	constructor(isy: ISY, node: any) {
+	constructor(isy: ISY, deviceNode: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
 
-		super(isy, node);
+		super(isy, deviceNode);
 		this.family = Family.Insteon;
 		//// this.productName = InsteonNLS.getDeviceDescription(String.fromCharCode(category,device,version));
 		this.childDevices = {};

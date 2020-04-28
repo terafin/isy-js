@@ -2,121 +2,89 @@ import { format } from 'util';
 import { parseStringPromise } from 'xml2js';
 
 import { Categories } from './Categories';
-import { InsteonSwitchDevice, KeypadDevice, InsteonLampDevice } from './Devices/Insteon/InsteonDevice';
+import { InsteonLampDevice, InsteonSwitchDevice, KeypadDevice } from './Devices/Insteon/InsteonDevice';
 import { InsteonDimmableDevice } from './Devices/Insteon/InsteonDimmableDevice';
-import { InsteonKeypadRelayDevice } from "./Devices/Insteon/InsteonKeypadRelayDevice";
-import { InsteonKeypadDimmerDevice } from "./Devices/Insteon/InsteonKeypadDimmerDevice";
 import { InsteonDimmerOutletDevice } from './Devices/Insteon/InsteonDimmerOutletDevice';
 import { InsteonDimmerSwitchDevice } from './Devices/Insteon/InsteonDimmerSwitchDevice';
 import { InsteonDoorWindowSensorDevice } from './Devices/Insteon/InsteonDoorWindowSensorDevice';
 import { InsteonFanDevice, InsteonFanMotorDevice } from './Devices/Insteon/InsteonFanDevice';
-import {  InsteonKeypadButtonDevice } from './Devices/Insteon/InsteonKeypadDevice';
+import { InsteonKeypadButtonDevice } from './Devices/Insteon/InsteonKeypadDevice';
+import { InsteonKeypadDimmerDevice } from './Devices/Insteon/InsteonKeypadDimmerDevice';
+import { InsteonKeypadRelayDevice } from './Devices/Insteon/InsteonKeypadRelayDevice';
 import { InsteonLeakSensorDevice } from './Devices/Insteon/InsteonLeakSensorDevice';
 import { InsteonMotionSensorDevice } from './Devices/Insteon/InsteonMotionSensorDevice';
 import { InsteonOnOffOutletDevice } from './Devices/Insteon/InsteonOnOffOutletDevice';
 import { InsteonRelayDevice } from './Devices/Insteon/InsteonRelayDevice';
 import { InsteonRelaySwitchDevice } from './Devices/Insteon/InsteonRelaySwitchDevice';
-import { Family, ISYDevice, InsteonThermostatDevice, InsteonLockDevice, InsteonSmokeSensorDevice } from './ISY';
+import { Family, InsteonBaseDevice, InsteonLockDevice, InsteonSmokeSensorDevice, InsteonThermostatDevice, ISYDevice } from './ISY';
 import { parseTypeCode } from './Utils';
+import { ISYBinaryStateDevice } from './Devices/ISYDevice';
+
+type l = ISYDevice<Family>;
 
 export class DeviceFactory {
 
-	public static createDevice(nodeDef: any): {name: string; modelNumber: string; version: string; class: typeof ISYDevice;
-}
-	{
-		const family = Number(nodeDef.family);
-		const typeArray = nodeDef.type.split('.');
-		const category = Number(typeArray[0]);
-		const device = Number(typeArray[1]);
-		const version = Number(typeArray[2]);
-		const nodeDefId = nodeDef.nodeDefId;
-		let str = null;
-		if (category === Categories.Controller) {
-			str = DeviceFactory.getNLSControllerInfo(device);
-		} else if (category === 0o001) {
-			str = DeviceFactory.getNLSDimLightInfo(device);
-		} else if (category === 0o002) {
-			str = DeviceFactory.getNLSSwitchLightInfo(device);
-		} else if (category === 0o003) {
-			str = DeviceFactory.getNLSNetworkBridgeInfo(device);
-		} else if (category === 0o005) {
-			str = DeviceFactory.getNLSClimateControlInfo(device);
-		} else if (category === 0o004) {
-			str = DeviceFactory.getNLSIrrigationControlInfo(device);
-		} else if (category === 0o007) {
-			str = DeviceFactory.getNLSIOControlInfo(device);
-		} else if (category === 0o017) {
-			str = DeviceFactory.getNLSAccessControlInfo(device);
-		} else if (category === 0o020) {
-			str = DeviceFactory.getNLSSHS(device);
-		} else if (category === 0o011) {
-			str = DeviceFactory.getNLSEnergyManagement(device);
-		} else if (category === 0o016) {
-			str = DeviceFactory.getNLSWindowsCovering(device);
-		}
-		str.version = version.toString(16);
+	public static getDeviceDetails(node: { family?: any; type?: any; address?: any; nodeDefId: any; }): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; unsupported?: true } {
+		const family = Number(node.family ?? '1');
 
-		if(nodeDefId === 'FanLincMotor')
-		{
+		if ((family ?? Family.Insteon) === Family.Insteon) {
 
-			str.class = InsteonFanMotorDevice;
-		}
-		if(nodeDefId === 'KeypadButton' || nodeDefId === 'KeypadButton_ADV')
-		{
-			str.class = InsteonKeypadButtonDevice;
-		}
-		if(str.class  === InsteonOnOffOutletDevice && (nodeDef.address as string).split(' ')[3] === '2') {
-			str.class = InsteonRelayDevice;
-		}
-		return str;
+			return this.getInsteonDeviceDetails(node.type, node);
+
+		} else { return {name: 'Unsupported Device', class: ISYDevice, unsupported: true} }
 	}
 
-	public static getDeviceDetails(family: number, typeCode: string): { name: string; modelNumber: string; version: string; class: typeof ISYDevice } {
-		if (family ?? Family.Insteon === Family.Insteon) {
-			return this.getInsteonDeviceDetails(typeCode);
-		} else return null;
-	}
-
-	public static getInsteonDeviceDetails(typeCode: string): { name: string; modelNumber: string; version: string; class: typeof ISYDevice } {
+	public static getInsteonDeviceDetails(typeCode: string, node: { address?: any; nodeDefId: any; }): { name: string; modelNumber?: string; version?: string; class: typeof ISYDevice; unsupported? : true } {
 		const type = parseTypeCode(typeCode);
-		//const typeArray = typeCode.split('.');
+		const subAddress = node.address.split(' ').pop();
+
+		// const typeArray = typeCode.split('.');
 		const category = type.category;
-		const device = type.deviceCode;
+		const deviceCode = type.deviceCode;
 
-		let str = null;
+		let deviceDetails = null;
 		if (category === Categories.Controller) {
-			str = DeviceFactory.getNLSControllerInfo(device);
+			deviceDetails = DeviceFactory.getNLSControllerInfo(deviceCode);
 		} else if (category === 0o001) {
-			str = DeviceFactory.getNLSDimLightInfo(device);
+			deviceDetails = DeviceFactory.getNLSDimLightInfo(deviceCode, subAddress, node);
 		} else if (category === 0o002) {
-			str = DeviceFactory.getNLSSwitchLightInfo(device);
+			deviceDetails = DeviceFactory.getNLSSwitchLightInfo(deviceCode, subAddress);
 		} else if (category === 0o003) {
-			str = DeviceFactory.getNLSNetworkBridgeInfo(device);
+			deviceDetails = DeviceFactory.getNLSNetworkBridgeInfo(deviceCode);
 		} else if (category === 0o005) {
-			str = DeviceFactory.getNLSClimateControlInfo(device);
+			deviceDetails = DeviceFactory.getNLSClimateControlInfo(deviceCode);
 		} else if (category === 0o004) {
-			str = DeviceFactory.getNLSIrrigationControlInfo(device);
+			deviceDetails = DeviceFactory.getNLSIrrigationControlInfo(deviceCode);
 		} else if (category === 0o007) {
-			str = DeviceFactory.getNLSIOControlInfo(device);
+			deviceDetails = DeviceFactory.getNLSIOControlInfo(deviceCode);
 		} else if (category === 0o017) {
-			str = DeviceFactory.getNLSAccessControlInfo(device);
+			deviceDetails = DeviceFactory.getNLSAccessControlInfo(deviceCode);
 		} else if (category === 0o020) {
-			str = DeviceFactory.getNLSSHS(device);
+			deviceDetails = DeviceFactory.getNLSSHS(deviceCode,subAddress,node);
 		} else if (category === 0o011) {
-			str = DeviceFactory.getNLSEnergyManagement(device);
+			deviceDetails = DeviceFactory.getNLSEnergyManagement(deviceCode);
 		} else if (category === 0o016) {
-			str = DeviceFactory.getNLSWindowsCovering(device);
+			deviceDetails = DeviceFactory.getNLSWindowsCovering(deviceCode);
 		}
+		if (deviceDetails) {
+			deviceDetails.version = type.firmwareVersion;
+			if (deviceDetails.class === InsteonOnOffOutletDevice && subAddress !== '1') {
+				deviceDetails.class = InsteonRelayDevice;
+			}
+		}
+		if(!deviceDetails)
+			deviceDetails =
+				{ name: 'Unsupported Insteon Device', class: null, unsupported: true};
+		if(!deviceDetails.class)
+			deviceDetails.class = InsteonBaseDevice;
+		return deviceDetails;
 
-		str.version = type.firmwareVersion;
+		// deviceDetails = deviceDetails + version.toString(16);
 
-		// str = str + version.toString(16);
-
-		return str;
 	}
 
-	static getNLSNetworkBridgeInfo(device: number) {
-		const c = String.fromCharCode(device);
+	public static getNLSNetworkBridgeInfo(deviceCode: number): { name: string; modelNumber: string; version: string; class: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o001):
@@ -144,10 +112,11 @@ export class DeviceFactory {
 				retVal = { name: 'PowerLine Modem USB', modelNumber: '2412U' };
 				break;
 			case '\r':
-				return 'EZX10-RF';
+				retVal = {name: 'EZX10-RF'};
 				break;
 			case String.fromCharCode(0o017):
-				return 'EZX10-IR';
+				retVal = {
+					name:  'EZX10-IR'};
 				break;
 			case 'O':
 				retVal = { name: 'PowerLine Modem', modelNumber: '12237DB' };
@@ -155,13 +124,13 @@ export class DeviceFactory {
 		return retVal;
 	}
 
-	static getNLSIrrigationControlInfo(device: number) {
-		const c = String.fromCharCode(device);
-		return c === String.fromCharCode(0o000) ? 'EZRain/EZFlora Irrigation Controller' : null;
+	public static getNLSIrrigationControlInfo(deviceCode: number): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
+		return c === String.fromCharCode(0o000) ? { name: 'EZRain/EZFlora Irrigation Controller' } : null;
 	}
 
-	static getNLSSwitchLightInfo(device: number): { name: string; modelNumber: string; version: string; class: typeof ISYDevice } {
-		const c = String.fromCharCode(device);
+	public static getNLSSwitchLightInfo(deviceCode: number, subAddress: string): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o006):
@@ -177,7 +146,7 @@ export class DeviceFactory {
 				retVal = { name: 'SwitchLinc Relay', modelNumber: '2476ST' };
 				break;
 			case String.fromCharCode(0o013):
-				retVal = { name: 'Icon On/Off Switch', modelNumber: '2876S' };
+				retVal = { name: 'Icon On/Off Switch', modelNumber: '2876S', class: InsteonRelaySwitchDevice};
 				break;
 			case '\f':
 				retVal = { name: 'Icon Appliance Adapter', modelNumber: '2856S3' };
@@ -199,7 +168,7 @@ export class DeviceFactory {
 				retVal = { name: 'KeypadLinc Relay', modelNumber: '2486S/WH6', class: InsteonKeypadRelayDevice };
 				break;
 			case String.fromCharCode(0o005):
-				retVal = { name: 'KeypadLinc Relay (8 buttons)', modelNumber: '2486S/WH8', class: InsteonKeypadRelayDevice  };
+				retVal = { name: 'KeypadLinc Relay (8 buttons)', modelNumber: '2486S/WH8', class: InsteonKeypadRelayDevice };
 				break;
 			case String.fromCharCode(0o020):
 				retVal = { name: 'In-LineLinc Relay', modelNumber: '2475S' };
@@ -217,28 +186,28 @@ export class DeviceFactory {
 				retVal = { name: 'Companion Switch', modelNumber: '2474S' };
 				break;
 			case String.fromCharCode(0o025):
-				retVal = { name: 'SwitchLinc Relay W/ Sense', modelNumber: '2476S' };
+				retVal = { name: 'SwitchLinc Relay W/ Sense', modelNumber: '2476S', class: InsteonRelaySwitchDevice};
 				break;
 			case String.fromCharCode(0o027):
-				retVal = { name: 'Icon Relay 3-Pin', modelNumber: '2856S3B' };
+				retVal = { name: 'Icon Relay 3-Pin', modelNumber: '2856S3B', class: InsteonRelaySwitchDevice };
 				break;
 			case String.fromCharCode(0o026):
-				retVal = { name: ' Icon Relay Switch', modelNumber: '2876SB' };
+				retVal = { name: ' Icon Relay Switch', modelNumber: '2876SB' , class: InsteonRelaySwitchDevice};
 				break;
 			case String.fromCharCode(0o030):
-				retVal = { name: 'SwitchLinc Relay 220 V.', modelNumber: '2494S220' };
+				retVal = { name: 'SwitchLinc Relay 220 V.', modelNumber: '2494S220', class: InsteonRelaySwitchDevice};
 				break;
 			case String.fromCharCode(0o031):
-				retVal = { name: 'SwitchLinc Relay 220 V. w/Beeper', modelNumber: '2494S220' };
+				retVal = { name: 'SwitchLinc Relay 220 V. w/Beeper', modelNumber: '2494S220', class: InsteonRelaySwitchDevice };
 				break;
 			case String.fromCharCode(0o034):
 				retVal = { name: 'SwitchLinc Relay - Remote Control On/Off Switch', modelNumber: '2476S', class: InsteonRelaySwitchDevice };
 				break;
 			case '%':
-				retVal = { name: 'KeypadLinc Timer Relay (8 buttons)', modelNumber: '2484S/WH8', class: InsteonKeypadRelayDevice  };
+				retVal = { name: 'KeypadLinc Timer Relay (8 buttons)', modelNumber: '2484S/WH8', class: InsteonKeypadRelayDevice };
 				break;
 			case ' ':
-				retVal = { name: 'KeypadLinc Relay', modelNumber: '2486S/WH6-SP', class: InsteonKeypadRelayDevice  };
+				retVal = { name: 'KeypadLinc Relay', modelNumber: '2486S/WH6-SP', class: InsteonKeypadRelayDevice };
 				break;
 			case '!':
 				retVal = { name: 'OutletLinc', modelNumber: '2473-SP', class: InsteonOnOffOutletDevice };
@@ -272,7 +241,7 @@ export class DeviceFactory {
 				retVal = { name: 'Micro Module On/Off', modelNumber: '2443-522' };
 				break;
 			case '.':
-				retVal = { name: 'Din Rail Relay', modelNumber: '2453-222', class: InsteonRelaySwitchDevice  };
+				retVal = { name: 'Din Rail Relay', modelNumber: '2453-222', class: InsteonRelaySwitchDevice };
 				break;
 			case '3':
 				retVal = { name: 'Din Rail Relay', modelNumber: '2453-422', class: InsteonRelaySwitchDevice };
@@ -280,7 +249,7 @@ export class DeviceFactory {
 			case '4':
 				break;
 			case '=':
-				retVal = { name: 'Din Rail Relay', modelNumber: '2453-522', class: InsteonRelaySwitchDevice};
+				retVal = { name: 'Din Rail Relay', modelNumber: '2453-522', class: InsteonRelaySwitchDevice };
 				break;
 			case '7':
 				retVal = { name: 'On/Off Module', modelNumber: '2635-222', };
@@ -303,12 +272,15 @@ export class DeviceFactory {
 			case '6':
 				retVal = { name: 'Plugin Relay', modelNumber: '2633-522' };
 		}
-		if (retVal.class === undefined) retVal.class = InsteonRelayDevice;
+		if (subAddress !== '1' && retVal.class === InsteonKeypadDimmerDevice) {
+			retVal.class = InsteonKeypadButtonDevice;
+		}
+		if (retVal.class === undefined) { retVal.class = InsteonRelayDevice; }
 		return retVal;
 	}
 
-	private static getNLSDimLightInfo(device: number) {
-		const c = String.fromCharCode(device);
+	private static getNLSDimLightInfo(deviceCode: number, subAddress: string, node: { nodeDefId: string; }) {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o000):
@@ -365,6 +337,7 @@ export class DeviceFactory {
 				retVal = { name: 'KeypadLinc Dimmer 6 Buttons', modelNumber: '2486D', class: InsteonKeypadDimmerDevice };
 				break;
 			case String.fromCharCode(0o034):
+
 				retVal = { name: 'KeypadLinc Dimmer 8 Buttons', modelNumber: '2486D', class: InsteonKeypadDimmerDevice };
 				break;
 			case String.fromCharCode(0o031):
@@ -419,6 +392,7 @@ export class DeviceFactory {
 				retVal = { name: 'Ballast Dimmer', modelNumber: '2446-522' };
 				break;
 			case '.':
+
 				retVal = { name: 'FanLinc', modelNumber: '2475F', class: InsteonFanDevice };
 				break;
 			case '!':
@@ -462,7 +436,7 @@ export class DeviceFactory {
 				retVal = { name: 'Din Rail Dimmer', modelNumber: '2452-522' };
 				break;
 			case 'B':
-				retVal = { name: 'KeypadLinc Dimmer 5 Buttons', modelNumber: '2334-2', class: InsteonKeypadDimmerDevice};
+				retVal = { name: 'KeypadLinc Dimmer 5 Buttons', modelNumber: '2334-2', class: InsteonKeypadDimmerDevice };
 				break;
 			case 'A':
 				retVal = { name: 'KeypadLinc Dimmer 8 Buttons', modelNumber: '2334-2', class: InsteonKeypadDimmerDevice };
@@ -485,12 +459,19 @@ export class DeviceFactory {
 			case String.fromCharCode(0o022):
 				retVal = { name: 'Plugin Dimmer', modelNumber: '2632-522' };
 		}
-		if (retVal?.class === undefined) retVal.class = InsteonDimmableDevice;
+		if (subAddress !== '1' && retVal.class === InsteonKeypadDimmerDevice) {
+			retVal.class = InsteonKeypadButtonDevice;
+		}
+		if(node.nodeDefId === 'FanLincMotor')
+		{
+			retVal.class = InsteonFanMotorDevice;
+		}
+		if (retVal?.class === undefined) { retVal.name = 'Generic Insteon Dimmer', retVal.class = InsteonDimmableDevice; }
 		return retVal;
 	}
 
-	private static getNLSControllerInfo(device: number) {
-		const c = String.fromCharCode(device);
+	private static getNLSControllerInfo(deviceCode: number): { name: string; modelNumber?: string; version?: string; class: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o000):
@@ -547,33 +528,45 @@ export class DeviceFactory {
 		return retVal;
 	}
 
-	private static getNLSIOControlInfo(device: number) {
-		const c = String.fromCharCode(device);
+	private static getNLSIOControlInfo(deviceCode: number): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o000):
 				retVal = { name: 'IOLinc', modelNumber: '2450' };
 				break;
 			case String.fromCharCode(0o003):
-				return 'Compacta EZIO 2x4: INSTEON I/O Controller';
+				retVal = { name: 'Compacta EZIO 2x4: INSTEON I/O Controller' };
 				break;
 			case String.fromCharCode(0o004):
-				return 'Compacta EZIO8SA: INSTEON I/O Controller';
+				retVal = {
+					name: 'Compacta EZIO8SA: INSTEON I/O Controller'
+				};
 				break;
 			case String.fromCharCode(0o002):
-				return 'Compacta EZIO8T: INSTEON I/O Controller';
+				retVal = {
+					name: 'Compacta EZIO8T: INSTEON I/O Controller'
+				};
 				break;
 			case String.fromCharCode(0o005):
-				return 'Compacta EZSnSRF';
+				retVal = {
+					name: 'Compacta EZSnSRF'
+				};
 				break;
 			case String.fromCharCode(0o006):
-				return 'Compacta EZSnSRF Interface';
+				retVal = {
+					name: 'Compacta EZSnSRF Interface'
+				};
 				break;
 			case String.fromCharCode(0o007):
-				return 'Compacta EZIO6I';
+				retVal = {
+					name: 'Compacta EZIO6I'
+				};
 				break;
 			case '\b':
-				return 'Compacta EZIO4O';
+				retVal = {
+					name: 'Compacta EZIO4O'
+				};
 				break;
 			case '\t':
 				retVal = { name: 'SynchroLinc', modelNumber: '2423A5' };
@@ -629,8 +622,8 @@ export class DeviceFactory {
 		return retVal;
 	}
 
-	private static getNLSSHS(device: number) {
-		const c = String.fromCharCode(device);
+	private static getNLSSHS(deviceCode: number, subAddress: string, node): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o001):
@@ -690,26 +683,35 @@ export class DeviceFactory {
 			case String.fromCharCode(0o030):
 				retVal = { name: 'Insteon Motion Sensor II', modelNumber: '2844-522', class: InsteonMotionSensorDevice };
 		}
+		if((node.nodeDefId === 'BinaryAlarm' || node.nodeDefId === 'BinaryAlarm_ADV' ) && subAddress !== '1')
+		{
+			if(retVal)
+				retVal.class = ISYBinaryStateDevice(InsteonBaseDevice);
+		}
 		return retVal;
 	}
 
-	private static getNLSClimateControlInfo(device: number) {
-		const c = String.fromCharCode(device);
+	private static getNLSClimateControlInfo(deviceCode: number): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o000):
-				return 'BROAN SMSC080 Exhaust Fan';
+				retVal = {
+					name: 'BROAN SMSC080 Exhaust Fan'};
 				break;
 			case String.fromCharCode(0o002):
-				return 'BROAN SMSC110 Exhaust Fan';
+				retVal = {
+					name:  'BROAN SMSC110 Exhaust Fan'};
 				break;
 			case String.fromCharCode(0o005):
-				return 'BROAN, Venmar, Best Rangehoods';
+				retVal = {
+					name:  'BROAN, Venmar, Best Rangehoods'};
 				break;
 			case String.fromCharCode(0o001):
 				break;
 			case String.fromCharCode(0o004):
-				return 'Compacta EZTherm';
+				retVal = {
+					name:  'Compacta EZTherm'};
 				break;
 			case String.fromCharCode(0o003):
 				retVal = { name: 'INSTEON Thermostat Adapter', modelNumber: '2441V' };
@@ -756,13 +758,13 @@ export class DeviceFactory {
 			case String.fromCharCode(0o016):
 				retVal = { name: 'All-In-One INSTEON Thermostat Adapter', modelNumber: '2491T' };
 		}
-		if (retVal?.class === undefined) retVal.class = InsteonThermostatDevice;
+		if (retVal?.class === undefined) { retVal.class = InsteonThermostatDevice; }
 		return retVal;
 	}
 
-	private static getNLSAccessControlInfo(device: number) {
-		const c = String.fromCharCode(device);
-		const retVal = { name: '' , modelNumber: '', class: InsteonLockDevice };
+	private static getNLSAccessControlInfo(deviceCode: number): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
+		const retVal = { name: '', modelNumber: '', class: InsteonLockDevice };
 		switch (c) {
 			case String.fromCharCode(0o006):
 				retVal.name = 'MorningLinc';
@@ -773,30 +775,36 @@ export class DeviceFactory {
 		return retVal;
 	}
 
-	private static getNLSEnergyManagement(device: number) {
-		const c = String.fromCharCode(device);
+	private static getNLSEnergyManagement(deviceCode: number): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o000):
-				return 'ZBPCM (iMeter Solo compat.)';
+				retVal = {
+					name: 'ZBPCM (iMeter Solo compat.)'
+				};
 				break;
 			case String.fromCharCode(0o007):
 				retVal = { name: 'iMeter Solo', modelNumber: '2423A1' };
 				break;
 			case String.fromCharCode(0o013):
-				return 'Dual Band Normally Closed 240V Load Controller (2477SA2)';
+				retVal = {
+					name: 'Dual Band Normally Closed 240V Load Controller', modelNumber: '(2477SA2)'
+				};
 				break;
 			case '\n':
-				return 'Dual Band Normally Open 240V Load Controller (2477SA1)';
+				retVal = { name: 'Dual Band Normally Open 240V Load Controller', modelNumber: '(2477SA1)' };
 				break;
 			case '\r':
-				return 'Energy Display (2448A2)';
+				retVal = {
+					name: 'Energy Display', modelNumber: '(2448A2)'
+				};
 		}
 		return retVal;
 	}
 
-	private static getNLSWindowsCovering(device: number) {
-		const c = String.fromCharCode(device);
+	private static getNLSWindowsCovering(deviceCode: number): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; } {
+		const c = String.fromCharCode(deviceCode);
 		let retVal = null;
 		switch (c) {
 			case String.fromCharCode(0o001):

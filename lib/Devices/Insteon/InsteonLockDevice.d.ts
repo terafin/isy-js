@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { ISY } from '../../ISY';
 import { InsteonBaseDevice } from './InsteonBaseDevice';
 declare const InsteonLockDevice_base: {
@@ -43,11 +44,11 @@ declare const InsteonLockDevice_base: {
         parentType: import("../../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
-        p: any;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
+        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
@@ -67,9 +68,7 @@ declare const InsteonLockDevice_base: {
     };
 } & typeof InsteonBaseDevice;
 export declare class InsteonLockDevice extends InsteonLockDevice_base {
-    constructor(isy: ISY, deviceNode: {
-        type: string;
-    });
+    constructor(isy: ISY, deviceNode: any);
     sendLockCommand(lockState: any, resultHandler: any): void;
     get isLocked(): boolean;
     getCurrentLockState(): boolean;
