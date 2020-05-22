@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { ISY } from '../../ISY';
 import { InsteonBaseDevice } from './InsteonBaseDevice';
 declare const InsteonLockDevice_base: {
@@ -27,11 +26,10 @@ declare const InsteonLockDevice_base: {
         addChild(childDevice: import("../ISYDevice").ISYDevice<any>): void;
         readonly parentDevice: import("../ISYDevice").ISYDevice<any>;
         refreshProperty(propertyName: string): Promise<any>;
-        refreshNotes(): Promise<void>;
-        getNotes(): Promise<any>;
         updateProperty(propertyName: string, value: string): Promise<any>;
         sendCommand(command: any, ...parameters: any[]): Promise<any>;
         refresh(): Promise<any>;
+        handleControlTrigger(controlName: any): boolean;
         handlePropertyChange(propertyName: string, value: any, formattedValue: string): boolean;
         readonly isy: ISY;
         readonly flag: any;
@@ -39,19 +37,24 @@ declare const InsteonLockDevice_base: {
         readonly address: string;
         name: string;
         displayName: string;
+        spokenName: string;
+        isLoad: boolean;
         folder: string;
         parent: any;
         parentType: import("../../ISYConstants").NodeType;
         readonly elkId: string;
         nodeType: number;
+        readonly baseDisplayName: string;
         propsInitialized: boolean;
         logger: (msg: any) => void;
         lastChanged: Date;
         enabled: boolean;
-        handleControlTrigger(controlName: string): boolean;
         on(event: "PropertyChanged" | "ControlTriggered", listener: ((propertyName: string, newValue: any, oldValue: any, formattedValue: string) => any) | ((controlName: string) => any)): any;
         emit(event: "PropertyChanged" | "ControlTriggered", propertyName?: string, newValue?: any, oldValue?: any, formattedValue?: string, controlName?: string): boolean;
         handleEvent(event: any): boolean;
+        setDisplayName(template: string): string;
+        refreshNotes(): Promise<void>;
+        getNotes(): Promise<any>;
         addListener(event: string | symbol, listener: (...args: any[]) => void): any;
         once(event: string | symbol, listener: (...args: any[]) => void): any;
         prependListener(event: string | symbol, listener: (...args: any[]) => void): any;
@@ -71,10 +74,7 @@ export declare class InsteonLockDevice extends InsteonLockDevice_base {
     constructor(isy: ISY, deviceNode: any);
     sendLockCommand(lockState: any, resultHandler: any): void;
     get isLocked(): boolean;
-    getCurrentLockState(): boolean;
     updateIsLocked(isLocked: boolean): Promise<any>;
-    getCurrentNonSecureLockState(): boolean;
-    getCurrentSecureLockState(): boolean;
     sendNonSecureLockCommand(lockState: any): Promise<any>;
     sendSecureLockCommand(lockState: any): Promise<any>;
 }

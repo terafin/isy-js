@@ -2,6 +2,11 @@ import { ISY, InsteonBaseDevice, Family, ISYDevice } from '../../ISY';
 
 import { Commands } from '../../ISYConstants';
 import { InsteonRelayDevice } from './InsteonRelayDevice';
+import { Insteon } from '../../Families';
+import { Constructor } from '../ISYDevice';
+import { InsteonKeypadButtonDevice } from './InsteonKeypadDevice';
+
+
 
 export const InsteonLampDevice = (InsteonBaseDevice: any) =>
 	{
@@ -22,15 +27,15 @@ export const InsteonSwitchDevice = (InsteonBaseDevice: any) =>
 		}
 	});
 
-export const KeypadDevice = (IB: any) => (class extends IB {
-    constructor (isy: any, node: any) {
-        super(isy, node);
-	}
+export const KeypadDevice = <T extends Constructor<InsteonBaseDevice>>(IB: T) => (class extends IB {
+
+
 
 	public addChild(childDevice: ISYDevice<Family.Insteon>)
 	{
-		
+
 		super.addChild(childDevice);
+
 	}
 });
 

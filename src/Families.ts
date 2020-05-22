@@ -1,6 +1,7 @@
 import { ISYUpdateableBinaryStateDevice } from './Devices/ISYDevice';
 import { InsteonBaseDevice } from './ISY';
-
+import { EventType } from './Events/EventType';
+import { ISYEvent } from './Events/ISYEvent';
 
 
 export enum Family {
@@ -9,89 +10,21 @@ export enum Family {
 	UPB = 2,
 	ZigBee = 3,
 	ZWave = 4,
-	Generic = 7,
+	AutoDR = 5,
+	Scene = 6,
+	UDI = 7,
+	Brultech = 8,
+	NCD = 9,
 	Poly = 10
 }
 
-export interface Insteon
-{
-	family : Family.Insteon;
+export interface Insteon {
+	family: Family.Insteon;
 }
 
-export enum EventType {
-	PropertyChanged = -1,
-	Heartbeat = 0,
-	Trigger = 1,
-	DriverSpecific = 2,
-	NodeChanged = 3,
-	SystemConfigChanged = 4,
-	SystemStatusChanged = 5,
-	InternetAccessChanged = 6,
-	ProgressReport = 7,
-	SecuritySystem = 8,
-	SystemAlert = 9,
-	OpenADR = 10,
-	Climate = 11,
-	APISEP = 12,
-	EnergyMonitoring = 13,
-	UPBLinker = 14,
-	UPBDeviceAdder = 15,
-	UPBDeviceStatus = 16,
-	GasMeter = 17,
-	ZigBee = 18,
-	Elk = 19,
-	DeviceLinker = 20,
-	ZWave = 21,
-	Billing = 22,
-	Portal = 23
-
-}
-class ISYEvent<TAction> {
-
-	action: TAction;
-	eventInfo: any;
-
-	constructor(eventData :any) {
-		this.action = eventData.action;
-		this.eventInfo = eventData.eventInfo;
-	}
-
-}
-
-class GenericEvent extends ISYEvent<string>
+class GenericEvent extends ISYEvent<string, EventType>
 {
 
 }
 
-class NodeEvent<TActionType> extends ISYEvent<TActionType>
-{
-	nodeAddress: string;
-
-	constructor (eventData: any) {
-
-		super(eventData);
-		this.nodeAddress = eventData.node;
-	}
-}
-
-class GenericNodeEvent extends NodeEvent<string>
-{
-
-}
-
-class PropertyChangedEvent extends NodeEvent<string>
-{
-	property: string;
-
-	formattedValue: string;
-
-	constructor(eventData: any)
-	{
-		super(eventData);
-
-		this.property = eventData.control;
-		this.formattedValue = eventData.fmtAct;
-	}
-
-
-}
+export type t = EventType.NodeChanged | EventType.PropertyChanged | EventType.ZWave | EventType.ZigBee;

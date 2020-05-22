@@ -150,14 +150,14 @@ const ISYConstants = {
 	},
 
 
-	UpdateTypes: {
-		elk: 'ELK_UPDATE',
-		zone: 'ZONE_UPDATE',
-		property: 'PROPERTY_UPDATE',
-		generic: 'GENERIC_UPDATE'
-	}
+
 
 };
+
+export const Properties =
+{
+
+}
 
 export enum VariableType {
 	Integer = 1,
@@ -169,11 +169,14 @@ export enum NodeType {
 	Folder = 3,
 	X10A10 = 4
 }
+export enum LinkType
+{
+	Controller = 16,
+	Responder = 0
+}
 
 
 export default ISYConstants;
 export const Props = ISYConstants.Props;
 export const States = ISYConstants.States;
 export const Commands = ISYConstants.Cmds;
-export const DeviceTypes = ISYConstants.deviceTypes;
-export const UpdateTypes = ISYConstants.UpdateTypes;

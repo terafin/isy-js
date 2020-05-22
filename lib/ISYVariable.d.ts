@@ -11,8 +11,10 @@ export declare class ISYVariable extends EventEmitter {
     type: VariableType;
     lastChanged: Date;
     constructor(isy: ISY, id: number, name: string, type: any);
-    handleEvent(event: any): void;
-    markAsChanged(): void;
-    sendSetValue(value: any, onComplete: any): void;
+    handleEvent(event: {
+        eventInfo: {
+            var: any;
+        };
+    }): void;
     updateValue(value: any): Promise<void>;
 }

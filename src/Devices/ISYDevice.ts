@@ -1,12 +1,14 @@
 import { timingSafeEqual } from 'crypto';
 import { isNullOrUndefined } from 'util';
 
+import { stringify } from 'querystring';
+import { threadId } from 'worker_threads';
 import { Family } from '../Families';
 import { Controls, ISY } from '../ISY';
 import { Commands, States } from '../ISYConstants';
 import { ISYNode } from '../ISYNode';
 import { ISYScene } from '../ISYScene';
-import { threadId } from 'worker_threads';
+import { NodeEvent } from '../Events/NodeEvent';
 
 export class ISYDevice<T extends Family> extends ISYNode {
 	public family: T;
@@ -26,9 +28,10 @@ export class ISYDevice<T extends Family> extends ISYNode {
 	public hidden: boolean = false;
 	public location: string;
 
-	constructor (isy: ISY, node: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
+	constructor(isy: ISY, node: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
 		super(isy, node);
-		this.family = node.family ?? Family.Generic;
+
+		this.family = node.family as T;
 		this.nodeType = 1;
 		this.type = node.type;
 		this._enabled = node.enabled;
@@ -115,43 +118,6 @@ export class ISYDevice<T extends Family> extends ISYNode {
 		return this.isy.callISY(`nodes/${this.address}/status/${propertyName}`);
 	}
 
-	public async refreshNotes() {
-		const that = this;
-		try {
-
-			const result = await this.getNotes();
-			if (result !== null && result !== undefined) {
-				that.location = result.location;
-				that.displayName = (that.location ?? that.folder) + ' ' + result.spoken;
-				that.logger(`The friendly name updated to: ${that.displayName}`);
-			}
-			else {
-				that.logger('No notes found.');
-			}
-		}
-		catch (e) {
-
-			that.logger(e);
-		}
-
-	}
-
-	public async getNotes(): Promise<any> {
-
-		try {
-			const result = await this.isy.callISY(`nodes/${this.address}/notes`);
-			if (result !== null && result !== undefined) {
-				return result.NodeProperties;
-			}
-			else
-				return null;
-
-		}
-		catch (e) {
-			return null;
-		}
-	}
-
 	public async updateProperty(propertyName: string, value: string): Promise<any> {
 		const val = this.convertTo(Number(value), Number(this.uom[propertyName]));
 		this.logger(
@@ -198,6 +164,12 @@ export class ISYDevice<T extends Family> extends ISYNode {
 		return result;
 	}
 
+
+
+	public handleControlTrigger(controlName) {
+		return this.emit('ControlTriggered', controlName);
+	}
+
 	public handlePropertyChange(propertyName: string, value: any, formattedValue: string) {
 		let changed = false;
 		const priorVal = this[propertyName];
@@ -239,12 +211,11 @@ export class ISYDevice<T extends Family> extends ISYNode {
 	}
 }
 
-type Constructor<T> = new (...args: any[]) => T;
-
+export type Constructor<T> = new (...args: any[]) => T;
 
 export const ISYBinaryStateDevice = <T extends Constructor<ISYDevice<any>>>(Base: T) => {
 	return class extends Base {
-		get state(): boolean {
+		 get state(): boolean {
 			return this.ST > 0;
 		}
 	};
@@ -270,8 +241,6 @@ export const ISYUpdateableBinaryStateDevice = <T extends Constructor<ISYDevice<a
 		}
 	};
 };
-
-
 
 export const ISYLevelDevice = <T extends Constructor<ISYDevice<any>>>(base: T) =>
 	class extends base {

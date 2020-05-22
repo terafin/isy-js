@@ -18,7 +18,7 @@ import { InsteonRelayDevice } from './Devices/Insteon/InsteonRelayDevice';
 import { InsteonThermostatDevice } from './Devices/Insteon/InsteonThermostatDevice';
 import { ISYDevice } from './Devices/ISYDevice';
 import { Family } from './Families';
-import { DeviceTypes, NodeType, Props, States, VariableType } from './ISYConstants';
+import { NodeType, Props, States, VariableType } from './ISYConstants';
 import { ISYNode } from './ISYNode';
 import { ISYScene } from './ISYScene';
 import { ISYVariable } from './ISYVariable';
@@ -28,7 +28,7 @@ import { InsteonSmokeSensorDevice } from './Devices/Insteon/InsteonSmokeSensorDe
 import { InsteonDimmerOutletDevice } from './Devices/Insteon/InsteonDimmerOutletDevice';
 import { InsteonKeypadButtonDevice } from './Devices/Insteon/InsteonKeypadDevice';
 import { EventEmitter } from 'events';
-export { ISYScene, States, Family, VariableType, DeviceTypes, Categories, Props, ISYVariable, InsteonBaseDevice, InsteonOutletDevice, ISYDevice, InsteonKeypadDimmerDevice, InsteonKeypadRelayDevice, InsteonKeypadButtonDevice, InsteonDimmableDevice, InsteonFanDevice, InsteonFanMotorDevice, InsteonLeakSensorDevice, InsteonSmokeSensorDevice, InsteonDimmerOutletDevice, InsteonOnOffOutletDevice, InsteonLockDevice, InsteonThermostatDevice, InsteonDoorWindowSensorDevice, InsteonDimmerSwitchDevice, InsteonRelayDevice, InsteonMotionSensorDevice, ISYNode, NodeType, ElkAlarmSensorDevice, ELKAlarmPanelDevice };
+export { ISYScene, States, Family, VariableType, Categories, Props, ISYVariable, InsteonBaseDevice, InsteonOutletDevice, ISYDevice, InsteonKeypadDimmerDevice, InsteonKeypadRelayDevice, InsteonKeypadButtonDevice, InsteonDimmableDevice, InsteonFanDevice, InsteonFanMotorDevice, InsteonLeakSensorDevice, InsteonSmokeSensorDevice, InsteonDimmerOutletDevice, InsteonOnOffOutletDevice, InsteonLockDevice, InsteonThermostatDevice, InsteonDoorWindowSensorDevice, InsteonDimmerSwitchDevice, InsteonRelayDevice, InsteonMotionSensorDevice, ISYNode, NodeType, ElkAlarmSensorDevice, ELKAlarmPanelDevice };
 export declare let Controls: {};
 export declare class ISY extends EventEmitter {
     readonly deviceList: Map<string, ISYDevice<any>>;
@@ -37,32 +37,35 @@ export declare class ISY extends EventEmitter {
     readonly folderMap: Map<string, string>;
     webSocket: Client;
     readonly zoneMap: Map<string, ElkAlarmSensorDevice>;
-    protocol: string;
-    address: string;
-    restlerOptions: any;
-    credentials: {
+    readonly protocol: string;
+    readonly address: string;
+    readonly restlerOptions: any;
+    readonly credentials: {
         username: string;
         password: string;
     };
-    variableList: Map<string, ISYVariable>;
+    readonly variableList: Map<string, ISYVariable>;
     nodesLoaded: boolean;
-    wsprotocol: string;
-    elkEnabled: boolean;
-    debugLogEnabled: boolean;
+    readonly wsprotocol: string;
+    readonly elkEnabled: boolean;
+    readonly debugLoggingEnabled: boolean;
+    readonly displayNameFormat: string;
     guardianTimer: any;
     elkAlarmPanel: ELKAlarmPanelDevice;
     logger: LoggerLike;
     lastActivity: any;
     model: any;
     serverVersion: any;
+    readonly storagePath: string;
     constructor(config: {
         host: string;
         username: string;
         password: string;
         elkEnabled?: boolean;
         useHttps?: boolean;
-        debugLogEnabled?: boolean;
-    }, logger: LoggerLike);
+        debugLoggingEnabled?: boolean;
+        displayNameFormat?: string;
+    }, logger: LoggerLike, storagePath?: string);
     emit(event: 'InitializeCompleted' | 'NodeAdded' | 'NodeRemoved' | 'NodeChanged', node?: ISYNode): boolean;
     on(event: 'InitializeCompleted' | 'NodeAdded' | 'NodeRemoved' | 'NodeChanged', listener: (node?: ISYNode) => void): this;
     callISY(url: string): Promise<any>;

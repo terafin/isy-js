@@ -3,8 +3,16 @@
     "compilerOptions": {
         "target": "es2018",
         "module": "commonjs",
-        "rootDir": "src", 
+        "rootDir": "src",
         "noImplicitUseStrict": true,
+        "lib":[
+            "ES2018",
+            "ES2017",
+            "ES2016",
+            "ES2015",
+            "ES6",
+            "ES5"
+        ],
         //"allowJs": true,
         "outDir": "lib",
         "declaration": true,

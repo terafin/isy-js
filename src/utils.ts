@@ -1,9 +1,10 @@
-import { get } from 'restler';
+import { get } from 'restler-base';
 
 import * as log4js from '@log4js-node/log4js-api';
 
 import { Categories } from './Categories';
 import { EventEmitter } from 'events';
+
 
 
 //import { get } from 'http';
@@ -25,6 +26,7 @@ let lastrequest = Promise.resolve();
 export async function getAsync(url: string, options: any): Promise<any> {
 	const p = new Promise<any>((resolve, reject) => {
 		// console.log('Calling: ' + url);
+		let h =
 		get(url, options)
 			.on('complete', (result: any) => {
 				//console.log(JSON.stringify(result));
@@ -73,6 +75,8 @@ export interface PropertyChangedEventEmitter extends EventEmitter
 	on(event:'PropertyChanged', listener: (propertyName : string, newValue: any, oldValue: any, formattedValue: string) => void) : this;
 
 }
+
+
 
 export function parseTypeCode(typeCode: string) : {category: Categories, deviceCode: number, firmwareVersion: number, minorVersion: number }
 {

@@ -138,13 +138,8 @@ declare const ISYConstants: {
         thermostat: string;
         polyNode: string;
     };
-    UpdateTypes: {
-        elk: string;
-        zone: string;
-        property: string;
-        generic: string;
-    };
 };
+export declare const Properties: {};
 export declare enum VariableType {
     Integer = 1,
     State = 2
@@ -154,6 +149,10 @@ export declare enum NodeType {
     Scene = 2,
     Folder = 3,
     X10A10 = 4
+}
+export declare enum LinkType {
+    Controller = 16,
+    Responder = 0
 }
 export default ISYConstants;
 export declare const Props: {
@@ -275,29 +274,4 @@ export declare const Commands: {
         SetpointDown: string;
     };
     Query: string;
-};
-export declare const DeviceTypes: {
-    lock: string;
-    secureLock: string;
-    light: string;
-    dimmableLight: string;
-    outlet: string;
-    fan: string;
-    unknown: string;
-    doorWindowSensor: string;
-    alarmDoorWindowSensor: string;
-    coSensor: string;
-    alarmPanel: string;
-    motionSensor: string;
-    leakSensor: string;
-    remote: string;
-    scene: string;
-    thermostat: string;
-    polyNode: string;
-};
-export declare const UpdateTypes: {
-    elk: string;
-    zone: string;
-    property: string;
-    generic: string;
 };

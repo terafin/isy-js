@@ -21,7 +21,7 @@ export class ISYVariable extends EventEmitter {
 		this.lastChanged = new Date();
 	}
 
-	public handleEvent(event: any)
+	public handleEvent(event: { eventInfo: { var: any }; })
 	{
 		const varNode = event.eventInfo.var;
 		if (varNode !== null) {
@@ -37,16 +37,7 @@ export class ISYVariable extends EventEmitter {
 			const sec = parseInt(varNode.ts.substr(15, 2));
 			 this.lastChanged = new Date(year, month, day, hour, min, sec);
 			this.emit('ValueChanged',this.value, priorVal);
-	
-
 		}
-	}
-
-	public markAsChanged() {
-		this.lastChanged = new Date();
-	}
-	public sendSetValue(value, onComplete) {
-		this.isy.sendSetVariable(this.id, this.type, value, (success) => onComplete(success));
 	}
 
 	public async updateValue(value: any): Promise<void> {

@@ -1,13 +1,13 @@
 import { Client } from 'faye-websocket';
 import { writeFile } from 'fs';
-import { get, parsers } from 'restler';
+import { get, parsers } from 'restler-base';
 import { Parser } from 'xml2js';
 import { parseBooleans, parseNumbers } from 'xml2js/lib/processors';
 import { XmlDocument } from 'xmldoc';
 
-import { timingSafeEqual } from 'crypto';
+
 import { Categories } from './Categories';
-import { DeviceFactory } from './DeviceFactory';
+import { DeviceFactory } from './Devices/DeviceFactory';
 import { ELKAlarmPanelDevice } from './Devices/Elk/ElkAlarmPanelDevice';
 import { ElkAlarmSensorDevice } from "./Devices/Elk/ElkAlarmSensorDevice";
 import { InsteonBaseDevice } from './Devices/Insteon/InsteonBaseDevice';
@@ -24,8 +24,9 @@ import { InsteonMotionSensorDevice } from './Devices/Insteon/InsteonMotionSensor
 import { InsteonRelayDevice } from './Devices/Insteon/InsteonRelayDevice';
 import { InsteonThermostatDevice } from './Devices/Insteon/InsteonThermostatDevice';
 import { ISYDevice } from './Devices/ISYDevice';
-import { EventType, Family } from './Families';
-import { DeviceTypes, NodeType, Props, States, VariableType } from './ISYConstants';
+import { Family } from './Families';
+import { EventType } from "./Events/EventType";
+import {  NodeType, Props, States, VariableType } from './ISYConstants';
 import { ISYNode } from './ISYNode';
 import * as ProductInfoData from './isyproductinfo.json';
 import { ISYScene } from './ISYScene';
@@ -42,7 +43,7 @@ export {
 	States,
 	Family,
 	VariableType,
-	DeviceTypes,
+
 	Categories,
 	Props,
 	ISYVariable,
@@ -97,26 +98,29 @@ export class ISY extends EventEmitter {
 
 	public webSocket: Client;
 	public readonly zoneMap: Map<string, ElkAlarmSensorDevice> = new Map();
-	public protocol: string;
-	public address: string;
-	public restlerOptions: any;
-	public credentials: { username: string; password: string; };
-	public variableList: Map<string, ISYVariable> = new Map();
+	public readonly protocol: string;
+	public readonly address: string;
+	public readonly restlerOptions: any;
+	public readonly credentials: { username: string; password: string; };
+	public readonly variableList: Map<string, ISYVariable> = new Map();
 
 	public nodesLoaded: boolean = false;
-	public wsprotocol: string = 'ws';
-	public elkEnabled: boolean;
-	public debugLogEnabled: boolean;
-
+	public readonly wsprotocol: string = 'ws';
+	public readonly elkEnabled: boolean;
+	public readonly debugLoggingEnabled: boolean;
+	public readonly displayNameFormat: string;
 	public guardianTimer: any;
 	public elkAlarmPanel: ELKAlarmPanelDevice;
 	public logger: LoggerLike;
 	public lastActivity: any;
 	public model: any;
 	public serverVersion: any;
+	public readonly storagePath: string;
 	constructor (
-		config: { host: string, username: string, password: string, elkEnabled?: boolean, useHttps?: boolean, debugLogEnabled?: boolean; }, logger: LoggerLike) {
+		config: { host: string, username: string, password: string, elkEnabled?: boolean, useHttps?: boolean, debugLoggingEnabled?: boolean; displayNameFormat?: string; }, logger: LoggerLike, storagePath?: string) {
 		super();
+		this.storagePath = storagePath ?? './';
+		this.displayNameFormat = config.displayNameFormat ?? '${location ?? folder} ${spokenName ?? name}';
 		this.address = config.host;
 		this.logger = logger;
 		this.credentials = {
@@ -128,6 +132,7 @@ export class ISY extends EventEmitter {
 			username: this.credentials.username,
 			password: this.credentials.password,
 			parser: parsers.xml,
+
 			xml2js: {
 				explicitArray: false,
 				mergeAttrs: true,
@@ -141,8 +146,8 @@ export class ISY extends EventEmitter {
 		this.wsprotocol = 'ws';
 		this.elkEnabled = config.elkEnabled ?? false;
 
-		this.debugLogEnabled =
-			config.debugLogEnabled ?? false;
+		this.debugLoggingEnabled =
+			config.debugLoggingEnabled ?? false;
 
 		this.guardianTimer = null;
 		if (this.elkEnabled) {
@@ -196,9 +201,9 @@ export class ISY extends EventEmitter {
 	public async loadNodes(): Promise<any> {
 		try {
 			const result = await this.callISY('nodes');
-			if (this.debugLogEnabled) { } {
-				writeFile('ISYNodesDump.json', JSON.stringify(result), this.logger);
-			}
+
+			writeFile(this.storagePath + '/ISYNodesDump.json', JSON.stringify(result), this.logger);
+
 			await this.loadFolders(result).catch(p => this.logger.error('Error Loading Folders', p));
 			await this.loadDevices(result).catch(p => this.logger.error('Error Loading Devices', p));
 			await this.loadScenes(result).catch(p => this.logger.error('Error Loading Scenes', p));
@@ -228,8 +233,15 @@ export class ISY extends EventEmitter {
 			} // Skip ISY & Auto DR Scenes
 
 			const newScene = new ISYScene(this, scene);
+			try {
+				await newScene.refreshNotes();
+
+			} catch (e) {
+				this.logger('No notes found.');
+			}
 			this.sceneList.set(newScene.address, newScene);
 		}
+
 
 
 	}
@@ -398,8 +410,8 @@ export class ISY extends EventEmitter {
 	public async loadConfig() {
 		try {
 			const result = await this.callISY('config');
-			if (this.debugLogEnabled) {
-				writeFile('ISYConfigDump.json', JSON.stringify(result), this.logger);
+			if (this.debugLoggingEnabled) {
+				writeFile(this.storagePath +'/ISYConfigDump.json', JSON.stringify(result), this.logger);
 			}
 
 			const controls = result.configuration.controls;
@@ -464,8 +476,8 @@ export class ISY extends EventEmitter {
 		try {
 			const that = this;
 			const result = await that.callISY('status');
-			if (that.debugLogEnabled) {
-				writeFile('ISYStatusDump.json', JSON.stringify(result), this.logger);
+			if (that.debugLoggingEnabled) {
+				writeFile(that.storagePath + '/ISYStatusDump.json', JSON.stringify(result), this.logger);
 			}
 			for (const node of result.nodes.node) {
 				this.logger(node);

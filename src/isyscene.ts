@@ -1,7 +1,7 @@
 import { InsteonDimmableDevice } from './Devices/Insteon/InsteonDimmableDevice';
 import { Family } from './Families';
 import { InsteonRelayDevice, ISY, ISYDevice } from './ISY';
-import { Commands, DeviceTypes } from './ISYConstants';
+import { Commands, LinkType } from './ISYConstants';
 import { ISYNode } from './ISYNode';
 
 export class ISYScene extends ISYNode {
@@ -10,20 +10,20 @@ export class ISYScene extends ISYNode {
 	public batteryOperated: boolean;
 	public deviceType: any;
 	public deviceFriendlyName: string;
-	public childDevices: ISYDevice<any>[];
+	public members: Array<ISYDevice<any>>;
 	public isDimmable: boolean;
 	public typeCode: string;
-	constructor(isy: ISY, scene: { members?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; family?: Family; parent?: any; enabled: boolean; ELK_ID?: string; }) {
+	constructor(isy: ISY, scene: { members?: { link: any; }; flag?: any; nodeDefId?: string; address?: string; name?: string; family?: Family; parent?: any; enabled: boolean; ELK_ID?: string; }) {
 		super(isy, scene);
 		// this.logger(JSON.stringify(scene));
 		this.typeCode = '';
 		this.connectionType = 'Insteon Wired';
 		this.batteryOperated = false;
-		this.deviceType = DeviceTypes.scene;
+
 		this.deviceFriendlyName = 'ISY Scene';
-		this.childDevices = [];
+		this.members = [];
 		this.isDimmable = false;
-		if (Array.isArray(scene.members.link)) {
+		if (Array.isArray(scene.members?.link)) {
 			for (const node of scene.members.link) {
 				if ('_' in node) {
 					// childDevices.push(node._);
@@ -32,21 +32,24 @@ export class ISYScene extends ISYNode {
 					const d = isy.getDevice(s);
 
 					if (d !== null && d !== undefined) { d.addLink(this); }
+
 					if (d instanceof InsteonDimmableDevice && node.type !== '16') { this.isDimmable = true; }
-					this.childDevices[s] = d;
+					this.members[s] = d;
 				}
 			}
-		} else if (scene.members.link !== undefined) {
+		} else if (scene.members?.link) {
 			if ('_' in scene.members.link) {
-				const node = scene.members.link;
+				const node = scene.members.link._;
 				this.logger(JSON.stringify(node));
 				// childDevices.push(node._);
 				// childDevices.push(object)
 				const s = scene.members.link._;
 				const d = isy.getDevice(s);
-				if (d !== null && d !== undefined) { d.addLink(this); }
-				if ((d.isDimmable && node.type !== '16') || this.isDimmable) { this.isDimmable = true; }
-				this.childDevices[s] = d;
+				if (d) { d.addLink(this);
+				// tslint:disable-next-line: triple-equals
+				if ((d.isDimmable && node.type != LinkType.Controller) || this.isDimmable) { this.isDimmable = true; }
+				this.members[s] = d;
+				}
 			}
 		}
 		// check dimmability this.dimmable = Array.apply(p => p.dimmable);
@@ -54,7 +57,7 @@ export class ISYScene extends ISYNode {
 	}
 	// Get the current light state
 	get isOn() {
-		for (const device of this.childDevices) {
+		for (const device of this.members) {
 			if (device instanceof InsteonRelayDevice) {
 				if (device.isOn) {
 					return true;
@@ -63,10 +66,11 @@ export class ISYScene extends ISYNode {
 		}
 		return false;
 	}
+
 	get brightnessLevel() {
 		let lightDeviceCount = 0;
 		let blevel = 0;
-		for (const device of this.childDevices) {
+		for (const device of this.members) {
 			if (device instanceof InsteonDimmableDevice) {
 				lightDeviceCount++;
 				blevel += device.brightnessLevel;
@@ -95,14 +99,14 @@ export class ISYScene extends ISYNode {
 
 		}
 	}
-	public updateIsOn(lightState) {
+	public async updateIsOn(lightState: boolean) {
 		return this.isy.sendNodeCommand(this, lightState ? Commands.On : Commands.Off);
 	}
-	public updateBrightnessLevel(level) {
+	public async updateBrightnessLevel(level) {
 		return this.isy.sendNodeCommand(this, level > 0 ? Commands.On : Commands.Off, level);
 	}
 	public getAreAllLightsInSpecifiedState(state) {
-		for (const device of this.childDevices) {
+		for (const device of this.members) {
 			if (device instanceof InsteonRelayDevice) {
 				if (device.isOn !== state) {
 					return false;
@@ -111,4 +115,6 @@ export class ISYScene extends ISYNode {
 		}
 		return true;
 	}
+
+
 }

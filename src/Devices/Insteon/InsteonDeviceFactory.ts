@@ -1,28 +1,28 @@
 import { format } from 'util';
 import { parseStringPromise } from 'xml2js';
 
-import { Categories } from './Categories';
-import { InsteonLampDevice, InsteonSwitchDevice, KeypadDevice } from './Devices/Insteon/InsteonDevice';
-import { InsteonDimmableDevice } from './Devices/Insteon/InsteonDimmableDevice';
-import { InsteonDimmerOutletDevice } from './Devices/Insteon/InsteonDimmerOutletDevice';
-import { InsteonDimmerSwitchDevice } from './Devices/Insteon/InsteonDimmerSwitchDevice';
-import { InsteonDoorWindowSensorDevice } from './Devices/Insteon/InsteonDoorWindowSensorDevice';
-import { InsteonFanDevice, InsteonFanMotorDevice } from './Devices/Insteon/InsteonFanDevice';
-import { InsteonKeypadButtonDevice } from './Devices/Insteon/InsteonKeypadDevice';
-import { InsteonKeypadDimmerDevice } from './Devices/Insteon/InsteonKeypadDimmerDevice';
-import { InsteonKeypadRelayDevice } from './Devices/Insteon/InsteonKeypadRelayDevice';
-import { InsteonLeakSensorDevice } from './Devices/Insteon/InsteonLeakSensorDevice';
-import { InsteonMotionSensorDevice } from './Devices/Insteon/InsteonMotionSensorDevice';
-import { InsteonOnOffOutletDevice } from './Devices/Insteon/InsteonOnOffOutletDevice';
-import { InsteonRelayDevice } from './Devices/Insteon/InsteonRelayDevice';
-import { InsteonRelaySwitchDevice } from './Devices/Insteon/InsteonRelaySwitchDevice';
-import { Family, InsteonBaseDevice, InsteonLockDevice, InsteonSmokeSensorDevice, InsteonThermostatDevice, ISYDevice } from './ISY';
-import { parseTypeCode } from './Utils';
-import { ISYBinaryStateDevice } from './Devices/ISYDevice';
+import { Categories } from '../../Categories';
+import { InsteonLampDevice, InsteonSwitchDevice, KeypadDevice } from './InsteonDevice';
+import { InsteonDimmableDevice } from './InsteonDimmableDevice';
+import { InsteonDimmerOutletDevice } from './InsteonDimmerOutletDevice';
+import { InsteonDimmerSwitchDevice } from './InsteonDimmerSwitchDevice';
+import { InsteonDoorWindowSensorDevice } from './InsteonDoorWindowSensorDevice';
+import { InsteonFanDevice, InsteonFanMotorDevice } from './InsteonFanDevice';
+import { InsteonKeypadButtonDevice } from './InsteonKeypadDevice';
+import { InsteonKeypadDimmerDevice } from './InsteonKeypadDimmerDevice';
+import { InsteonKeypadRelayDevice } from './InsteonKeypadRelayDevice';
+import { InsteonLeakSensorDevice } from './InsteonLeakSensorDevice';
+import { InsteonMotionSensorDevice } from './InsteonMotionSensorDevice';
+import { InsteonOnOffOutletDevice } from './InsteonOnOffOutletDevice';
+import { InsteonRelayDevice } from './InsteonRelayDevice';
+import { InsteonRelaySwitchDevice } from './InsteonRelaySwitchDevice';
+import { Family, InsteonBaseDevice, InsteonLockDevice, InsteonSmokeSensorDevice, InsteonThermostatDevice, ISYDevice } from '../../ISY';
+import { parseTypeCode } from '../../Utils';
+import { ISYBinaryStateDevice } from '../ISYDevice';
 
 type l = ISYDevice<Family>;
 
-export class DeviceFactory {
+export class InsteonDeviceFactory {
 
 	public static getDeviceDetails(node: { family?: any; type?: any; address?: any; nodeDefId: any; }): { name: string; modelNumber?: string; version?: string; class?: typeof ISYDevice; unsupported?: true } {
 		const family = Number(node.family ?? '1');
@@ -44,27 +44,27 @@ export class DeviceFactory {
 
 		let deviceDetails = null;
 		if (category === Categories.Controller) {
-			deviceDetails = DeviceFactory.getNLSControllerInfo(deviceCode);
+			deviceDetails = InsteonDeviceFactory.getNLSControllerInfo(deviceCode);
 		} else if (category === 0o001) {
-			deviceDetails = DeviceFactory.getNLSDimLightInfo(deviceCode, subAddress, node);
+			deviceDetails = InsteonDeviceFactory.getNLSDimLightInfo(deviceCode, subAddress, node);
 		} else if (category === 0o002) {
-			deviceDetails = DeviceFactory.getNLSSwitchLightInfo(deviceCode, subAddress);
+			deviceDetails = InsteonDeviceFactory.getNLSSwitchLightInfo(deviceCode, subAddress);
 		} else if (category === 0o003) {
-			deviceDetails = DeviceFactory.getNLSNetworkBridgeInfo(deviceCode);
+			deviceDetails = InsteonDeviceFactory.getNLSNetworkBridgeInfo(deviceCode);
 		} else if (category === 0o005) {
-			deviceDetails = DeviceFactory.getNLSClimateControlInfo(deviceCode);
+			deviceDetails = InsteonDeviceFactory.getNLSClimateControlInfo(deviceCode);
 		} else if (category === 0o004) {
-			deviceDetails = DeviceFactory.getNLSIrrigationControlInfo(deviceCode);
+			deviceDetails = InsteonDeviceFactory.getNLSIrrigationControlInfo(deviceCode);
 		} else if (category === 0o007) {
-			deviceDetails = DeviceFactory.getNLSIOControlInfo(deviceCode);
+			deviceDetails = InsteonDeviceFactory.getNLSIOControlInfo(deviceCode);
 		} else if (category === 0o017) {
-			deviceDetails = DeviceFactory.getNLSAccessControlInfo(deviceCode);
+			deviceDetails = InsteonDeviceFactory.getNLSAccessControlInfo(deviceCode);
 		} else if (category === 0o020) {
-			deviceDetails = DeviceFactory.getNLSSHS(deviceCode,subAddress,node);
+			deviceDetails = InsteonDeviceFactory.getNLSSHS(deviceCode,subAddress,node);
 		} else if (category === 0o011) {
-			deviceDetails = DeviceFactory.getNLSEnergyManagement(deviceCode);
+			deviceDetails = InsteonDeviceFactory.getNLSEnergyManagement(deviceCode);
 		} else if (category === 0o016) {
-			deviceDetails = DeviceFactory.getNLSWindowsCovering(deviceCode);
+			deviceDetails = InsteonDeviceFactory.getNLSWindowsCovering(deviceCode);
 		}
 		if (deviceDetails) {
 			deviceDetails.version = type.firmwareVersion;
