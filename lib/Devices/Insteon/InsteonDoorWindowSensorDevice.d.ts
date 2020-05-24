@@ -4,15 +4,15 @@ declare const InsteonDoorWindowSensorDevice_base: {
     new (...args: any[]): {
         [x: string]: any;
         readonly state: boolean;
-        family: any;
+        family: import("../../Families").Family;
         readonly typeCode: string;
         readonly deviceClass: any;
         readonly parentAddress: any;
         readonly category: number;
         readonly subCategory: number;
         readonly type: any;
-        _parentDevice: import("../ISYDevice").ISYDevice<any>;
-        readonly children: import("../ISYDevice").ISYDevice<any>[];
+        _parentDevice: import("../ISYDevice").ISYDevice<import("../../Families").Family>;
+        readonly children: import("../ISYDevice").ISYDevice<import("../../Families").Family>[];
         readonly scenes: import("../../ISYScene").ISYScene[];
         readonly formatted: any;
         readonly uom: any;
@@ -22,8 +22,8 @@ declare const InsteonDoorWindowSensorDevice_base: {
         convertTo(value: any, uom: number): any;
         convertFrom(value: any, uom: number): any;
         addLink(isyScene: import("../../ISYScene").ISYScene): void;
-        addChild(childDevice: import("../ISYDevice").ISYDevice<any>): void;
-        readonly parentDevice: import("../ISYDevice").ISYDevice<any>;
+        addChild(childDevice: import("../ISYDevice").ISYDevice<import("../../Families").Family>): void;
+        readonly parentDevice: import("../ISYDevice").ISYDevice<import("../../Families").Family>;
         refreshProperty(propertyName: string): Promise<any>;
         updateProperty(propertyName: string, value: string): Promise<any>;
         sendCommand(command: any, ...parameters: any[]): Promise<any>;

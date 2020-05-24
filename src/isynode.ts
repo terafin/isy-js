@@ -35,7 +35,7 @@ export class ISYNode extends EventEmitter implements PropertyChangedEventEmitter
 		this.nodeType = 0;
 		this.flag = node.flag;
 		this.nodeDefId = node.nodeDefId;
-		this.address = node.address;
+		this.address = String(node.address);
 		this.name = node.name;
 		this.family = node.family ?? Family.Insteon;
 

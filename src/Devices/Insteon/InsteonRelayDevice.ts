@@ -4,6 +4,7 @@ import { InsteonBaseDevice } from './InsteonBaseDevice';
 
 export class InsteonRelayDevice extends ISYUpdateableBinaryStateDevice(InsteonBaseDevice) {
 	constructor (isy: ISY, node: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
+		
 		super(isy, node);
 	}
 	get isOn() {

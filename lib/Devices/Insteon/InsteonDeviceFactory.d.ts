@@ -1,4 +1,4 @@
-import { ISYDevice } from '../../ISY';
+import { InsteonBaseDevice, ISYDevice } from '../../ISY';
 export declare class InsteonDeviceFactory {
     static getDeviceDetails(node: {
         family?: any;
@@ -38,7 +38,7 @@ export declare class InsteonDeviceFactory {
         name: string;
         modelNumber?: string;
         version?: string;
-        class?: typeof ISYDevice;
+        class?: typeof InsteonBaseDevice;
     };
     private static getNLSDimLightInfo;
     private static getNLSControllerInfo;

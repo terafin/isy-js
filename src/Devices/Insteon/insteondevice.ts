@@ -1,41 +1,35 @@
-import { ISY, InsteonBaseDevice, Family, ISYDevice } from '../../ISY';
+import { Family, InsteonBaseDevice, ISY, ISYDevice } from '../../ISY';
 
-import { Commands } from '../../ISYConstants';
-import { InsteonRelayDevice } from './InsteonRelayDevice';
 import { Insteon } from '../../Families';
+import { Commands } from '../../ISYConstants';
 import { Constructor } from '../ISYDevice';
 import { InsteonKeypadButtonDevice } from './InsteonKeypadDevice';
+import { InsteonRelayDevice } from './InsteonRelayDevice';
 
+export const InsteonLampDevice = <T extends Constructor<InsteonBaseDevice>>(IB: T) => (class extends IB {
 
-
-export const InsteonLampDevice = (InsteonBaseDevice: any) =>
-	{
-		return class extends InsteonBaseDevice {
-			constructor (isy: any, node: any) {
-				super(isy, node);
+			constructor(...args: any[]) {
+				super(args[0], args[1]);
 				this.isDimmable = true;
 			}
 
-		};
-	};
-// tslint:disable-next-line: variable-name
-export const InsteonSwitchDevice = (InsteonBaseDevice: any) =>
-	(class extends InsteonBaseDevice {
-		constructor(isy: any, node: any) {
-			super(isy, node);
+		});
 
-		}
-	});
+// tslint:disable-next-line: variable-name
+export const InsteonSwitchDevice = <T extends Constructor<InsteonBaseDevice>>(IB: T) => (class extends IB {
+
+	constructor (...args: any[]) {
+		super(args[0], args[1]);
+		this.isDimmable = true;
+	}
+
+});
 
 export const KeypadDevice = <T extends Constructor<InsteonBaseDevice>>(IB: T) => (class extends IB {
 
-
-
 	public addChild(childDevice: ISYDevice<Family.Insteon>)
 	{
-
 		super.addChild(childDevice);
-
 	}
 });
 

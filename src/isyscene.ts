@@ -33,7 +33,7 @@ export class ISYScene extends ISYNode {
 
 					if (d !== null && d !== undefined) { d.addLink(this); }
 
-					if (d instanceof InsteonDimmableDevice && node.type !== '16') { this.isDimmable = true; }
+					if (d instanceof InsteonDimmableDevice && node.type !== LinkType.Controller) { this.isDimmable = true; }
 					this.members[s] = d;
 				}
 			}

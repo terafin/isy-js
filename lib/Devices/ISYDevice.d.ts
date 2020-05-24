@@ -27,7 +27,7 @@ export declare class ISYDevice<T extends Family> extends ISYNode {
         property?: any;
         flag?: any;
         nodeDefId?: string;
-        address?: string;
+        address?: any;
         name?: string;
         parent?: any;
         ELK_ID?: string;
@@ -45,19 +45,19 @@ export declare class ISYDevice<T extends Family> extends ISYNode {
     handlePropertyChange(propertyName: string, value: any, formattedValue: string): boolean;
 }
 export declare type Constructor<T> = new (...args: any[]) => T;
-export declare const ISYBinaryStateDevice: <T extends Constructor<ISYDevice<any>>>(Base: T) => {
+export declare const ISYBinaryStateDevice: <K extends Family, T extends Constructor<ISYDevice<K>>>(Base: T) => {
     new (...args: any[]): {
         [x: string]: any;
         readonly state: boolean;
-        family: any;
+        family: K;
         readonly typeCode: string;
         readonly deviceClass: any;
         readonly parentAddress: any;
         readonly category: number;
         readonly subCategory: number;
         readonly type: any;
-        _parentDevice: ISYDevice<any>;
-        readonly children: ISYDevice<any>[];
+        _parentDevice: ISYDevice<K>;
+        readonly children: ISYDevice<K>[];
         readonly scenes: ISYScene[];
         readonly formatted: any[string];
         readonly uom: any[string];
@@ -67,8 +67,8 @@ export declare const ISYBinaryStateDevice: <T extends Constructor<ISYDevice<any>
         convertTo(value: any, uom: number): any;
         convertFrom(value: any, uom: number): any;
         addLink(isyScene: ISYScene): void;
-        addChild(childDevice: ISYDevice<any>): void;
-        readonly parentDevice: ISYDevice<any>;
+        addChild(childDevice: ISYDevice<K>): void;
+        readonly parentDevice: ISYDevice<K>;
         refreshProperty(propertyName: string): Promise<any>;
         updateProperty(propertyName: string, value: string): Promise<any>;
         sendCommand(command: any, ...parameters: any[]): Promise<any>;
@@ -114,20 +114,20 @@ export declare const ISYBinaryStateDevice: <T extends Constructor<ISYDevice<any>
         listenerCount(type: string | symbol): number;
     };
 } & T;
-export declare const ISYUpdateableBinaryStateDevice: <T extends Constructor<ISYDevice<any>>>(Base: T) => {
+export declare const ISYUpdateableBinaryStateDevice: <K extends Family, T extends Constructor<ISYDevice<K>>>(Base: T) => {
     new (...args: any[]): {
         [x: string]: any;
         readonly state: boolean;
         updateState(state: boolean): Promise<any>;
-        family: any;
+        family: K;
         readonly typeCode: string;
         readonly deviceClass: any;
         readonly parentAddress: any;
         readonly category: number;
         readonly subCategory: number;
         readonly type: any;
-        _parentDevice: ISYDevice<any>;
-        readonly children: ISYDevice<any>[];
+        _parentDevice: ISYDevice<K>;
+        readonly children: ISYDevice<K>[];
         readonly scenes: ISYScene[];
         readonly formatted: any[string];
         readonly uom: any[string];
@@ -137,8 +137,8 @@ export declare const ISYUpdateableBinaryStateDevice: <T extends Constructor<ISYD
         convertTo(value: any, uom: number): any;
         convertFrom(value: any, uom: number): any;
         addLink(isyScene: ISYScene): void;
-        addChild(childDevice: ISYDevice<any>): void;
-        readonly parentDevice: ISYDevice<any>;
+        addChild(childDevice: ISYDevice<K>): void;
+        readonly parentDevice: ISYDevice<K>;
         refreshProperty(propertyName: string): Promise<any>;
         updateProperty(propertyName: string, value: string): Promise<any>;
         sendCommand(command: any, ...parameters: any[]): Promise<any>;

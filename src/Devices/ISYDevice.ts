@@ -28,7 +28,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 	public hidden: boolean = false;
 	public location: string;
 
-	constructor(isy: ISY, node: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: string; name?: string; parent?: any; ELK_ID?: string; }) {
+	constructor(isy: ISY, node: { family: any; type?: string; enabled: any; deviceClass?: any; pnode?: any; property?: any; flag?: any; nodeDefId?: string; address?: any; name?: string; parent?: any; ELK_ID?: string; }) {
 		super(isy, node);
 
 		this.family = node.family as T;
@@ -54,7 +54,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 		}
 		if (Array.isArray(node.property)) {
 			for (const prop of node.property) {
-				this[prop.id] = this.convertFrom(Number(prop.value), Number(prop.uom));
+				this[prop.id] = this.convertFrom(prop.value, prop.uom);
 				this.formatted[prop.id] = prop.formatted;
 				this.uom[prop.id] = prop.uom;
 				this.logger(
@@ -65,8 +65,8 @@ export class ISYDevice<T extends Family> extends ISYNode {
 			}
 		} else if (node.property) {
 			this[node.property.id] = this.convertFrom(
-				Number(node.property.value),
-				Number(node.property.uom)
+				node.property.value,
+				node.property.uom
 			);
 			this.formatted[node.property.id] = node.property.formatted;
 			this.uom[node.property.id] = node.property.uom;
@@ -144,7 +144,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 
 		if (Array.isArray(node.property)) {
 			for (const prop of node.property) {
-				device[prop.id] = Number(prop.value);
+				device[prop.id] = prop.value;
 				device.formatted[prop.id] = prop.formatted;
 				device.uom[prop.id] = prop.uom;
 				device.logger(
@@ -154,7 +154,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 				);
 			}
 		} else if (node.property) {
-			device[node.property.id] = Number(node.property.value);
+			device[node.property.id] = node.property.value;
 			device.formatted[node.property.id] = node.property.formatted;
 			device.uom[node.property.id] = node.property.uom;
 			device.logger(
@@ -175,8 +175,8 @@ export class ISYDevice<T extends Family> extends ISYNode {
 		const priorVal = this[propertyName];
 		try {
 			const val = this.convertFrom(
-				Number(value),
-				Number(this.uom[propertyName])
+				value,
+				this.uom[propertyName]
 			);
 
 			if (this[propertyName] !== val) {
@@ -213,7 +213,7 @@ export class ISYDevice<T extends Family> extends ISYNode {
 
 export type Constructor<T> = new (...args: any[]) => T;
 
-export const ISYBinaryStateDevice = <T extends Constructor<ISYDevice<any>>>(Base: T) => {
+export const ISYBinaryStateDevice = <K extends Family, T extends Constructor<ISYDevice<K>>>(Base: T) => {
 	return class extends Base {
 		 get state(): boolean {
 			return this.ST > 0;
@@ -221,11 +221,12 @@ export const ISYBinaryStateDevice = <T extends Constructor<ISYDevice<any>>>(Base
 	};
 };
 
-export const ISYUpdateableBinaryStateDevice = <T extends Constructor<ISYDevice<any>>>(
+export const ISYUpdateableBinaryStateDevice = <K extends Family,T extends Constructor<ISYDevice<K>>>(
 	Base: T
 ) => {
 	return class extends Base {
 		get state(): boolean {
+
 			return this.ST > 0;
 		}
 
@@ -237,7 +238,7 @@ export const ISYUpdateableBinaryStateDevice = <T extends Constructor<ISYDevice<a
 					this.pending.ST = null;
 				});
 			}
-			return Promise.resolve({});
+			return Promise.resolve();
 		}
 	};
 };
@@ -258,13 +259,13 @@ export const ISYUpdateableLevelDevice = <T extends Constructor<ISYDevice<any>>>(
 		}
 
 		public async updateLevel(level: number): Promise<any> {
-			if (level !== this.ST && level !== (this.pending.ST ?? this.ST)) {
+			if (level != this.ST && level !== (this.pending.ST ?? this.ST)) {
 
 				this.pending.ST = level;
 				if (level > 0) {
 					return this.sendCommand(
 						Commands.On,
-						this.convertTo(level, Number(this.uom.ST))
+						this.convertTo(level, this.uom.ST)
 					).then((p) => {
 						this.ST = this.pending.ST;
 						this.pending.ST = null;

@@ -74,7 +74,10 @@ export {
 
 const parser = new Parser({
 	explicitArray: false,
-	mergeAttrs: true
+	mergeAttrs: true,
+
+	attrValueProcessors: [parseBooleans, parseNumbers],
+	valueProcessors: [(a,b) => parseNumbers(a), (a,b) => parseBooleans(a)]
 });
 
 export let Controls = {};
@@ -397,7 +400,7 @@ export class ISY extends EventEmitter {
 		return (
 			response === null ||
 			response instanceof Error ||
-			response.RestResponse !== undefined && response.RestResponse.status !== '200'
+			response.RestResponse !== undefined && response.RestResponse.status !== 200
 		);
 	}
 
@@ -490,8 +493,8 @@ export class ISY extends EventEmitter {
 					}
 				}
 				if (Array.isArray(node.property)) {
-					for (const prop of node.property) {
-						device[prop.id] = device.convertFrom(Number(prop.value), Number(prop.uom));
+					for (let prop of node.property) {
+						device[prop.id] = device.convertFrom(prop.value, prop.uom);
 						device.formatted[prop.id] = prop.formatted;
 						device.uom[prop.id] = prop.uom;
 						device.logger(
@@ -502,8 +505,8 @@ export class ISY extends EventEmitter {
 					}
 				} else if (node.property) {
 					device[node.property.id] = device.convertFrom(
-						Number(node.property.value),
-						Number(node.property.uom)
+						node.property.value,
+						node.property.uom
 					);
 					device.formatted[node.property.id] = node.property.formatted;
 					device.uom[node.property.id] = node.property.uom;
@@ -600,9 +603,9 @@ export class ISY extends EventEmitter {
 			} else if (evt.action instanceof Number || evt.action instanceof String) {
 				actionValue = Number(evt.action);
 			}
-			const stringControl = (evt.control as string)?.replace('_', '');
+			const stringControl = Number((evt.control as string)?.replace('_', ''));
 			switch (stringControl) {
-				case EventType.Elk.toString():
+				case EventType.Elk:
 					if (actionValue === 2) {
 
 						this.elkAlarmPanel.handleEvent(event);
@@ -620,7 +623,7 @@ export class ISY extends EventEmitter {
 
 					break;
 
-				case EventType.Trigger.toString():
+				case EventType.Trigger:
 					if (actionValue === 6) {
 						const varNode = evt.eventInfo.var;
 						const id = varNode.id;
@@ -628,7 +631,7 @@ export class ISY extends EventEmitter {
 						this.getVariable(type, id)?.handleEvent(evt);
 					}
 					break;
-				case EventType.Heartbeat.toString():
+				case EventType.Heartbeat:
 
 					this.logger.debug(`Received ${EventType[Number(stringControl)]} Signal from ISY: ${JSON.stringify(evt)}`);
 					break;
@@ -640,10 +643,10 @@ export class ISY extends EventEmitter {
 						if (impactedDevice !== undefined && impactedDevice !== null) {
 							impactedDevice.handleEvent(evt);
 						} else {
-							this.logger.warn(EventType[Number(stringControl)] + ' Event for Unidentified Device: ' + JSON.stringify(evt));
+							this.logger.warn(`${EventType[stringControl]} Event for Unidentified Device: ${JSON.stringify(evt)}`);
 						}
 					} else {
-						if(stringControl === EventType.NodeChanged.toString())
+						if(stringControl === EventType.NodeChanged)
 						{
 							this.logger(`Received Node Change Event: ${JSON.stringify(evt)}. These are currently unsupported.`);
 						}

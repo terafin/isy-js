@@ -1,5 +1,4 @@
 import { ISY } from '../../ISY';
-import { KeypadDevice } from './InsteonDevice';
 import { InsteonRelayDevice } from './InsteonRelayDevice';
 
 

@@ -25,11 +25,10 @@ let lastrequest = Promise.resolve();
 
 export async function getAsync(url: string, options: any): Promise<any> {
 	const p = new Promise<any>((resolve, reject) => {
-		// console.log('Calling: ' + url);
-		let h =
+	 console.log('Calling: ' + url);
+
 		get(url, options)
 			.on('complete', (result: any) => {
-				//console.log(JSON.stringify(result));
 				resolve(result);
 			})
 			.on('error', (err, response) => {
